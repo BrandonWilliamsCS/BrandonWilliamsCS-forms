@@ -1,0 +1,16 @@
+{
+  "name": "@blueharborsolutions/forms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Encode organizational decisions best practices regarding React form usage",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "test"
+  },
+  "author": "Brandon Williams <brandon.williams@blueharborsolutions.com>",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "typescript": "^4.0.2"
+  }
+}
