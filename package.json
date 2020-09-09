@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest --watch"
   },
   "author": "Brandon Williams <brandon.williams@blueharborsolutions.com>",
   "license": "UNLICENSED",
