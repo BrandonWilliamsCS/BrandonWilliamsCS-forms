@@ -1,5 +1,5 @@
 import React from "react";
-import { render, act, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { FocusableFieldset } from "./FocusableFieldset";
 
@@ -45,15 +45,13 @@ describe("FocusableFieldset", () => {
     const onFocus = jest.fn();
 
     // Act
-    const { container } = render(
-      <FocusableFieldset onBlur={onBlur} onFocus={onFocus} id="pass-me-through">
-        <input id="focusable-child-1" />
+    render(
+      <FocusableFieldset onBlur={onBlur} onFocus={onFocus}>
+        <input data-testid="focusable-child-1" />
       </FocusableFieldset>,
     );
-    const focusableChild1 = container.querySelector("#focusable-child-1")!;
-    act(() => {
-      fireEvent.focus(focusableChild1);
-    });
+    const focusableChild1 = screen.getByTestId("focusable-child-1");
+    fireEvent.focus(focusableChild1);
 
     // Assert
     expect(onFocus).toHaveBeenCalled();
@@ -65,26 +63,15 @@ describe("FocusableFieldset", () => {
     const onFocus = jest.fn();
 
     // Act
-    const { container } = render(
-      <>
-        <FocusableFieldset
-          onBlur={onBlur}
-          onFocus={onFocus}
-          id="pass-me-through"
-        >
-          <input id="focusable-child-1" />
-        </FocusableFieldset>
-        <input id="focusable-sibling-1" />
-      </>,
+    render(
+      <FocusableFieldset onBlur={onBlur} onFocus={onFocus}>
+        <input data-testid="focusable-child-1" />
+      </FocusableFieldset>,
     );
-    const focusableChild1 = container.querySelector("#focusable-child-1")!;
-    const focusableSibling1 = container.querySelector("#focusable-sibling-1")!;
-    await act(async () => {
-      fireEvent.focus(focusableChild1);
-      // Need to give React time to adjust to state
-      await waitForTick();
-      fireEvent.blur(focusableChild1);
-    });
+    const focusableChild1 = screen.getByTestId("focusable-child-1");
+    fireEvent.focus(focusableChild1);
+    await waitForTick();
+    fireEvent.blur(focusableChild1);
 
     // Assert
     await waitFor(() => expect(onBlur).toHaveBeenCalled());
@@ -96,27 +83,17 @@ describe("FocusableFieldset", () => {
     const onFocus = jest.fn();
 
     // Act
-    const { container } = render(
-      <>
-        <FocusableFieldset
-          onBlur={onBlur}
-          onFocus={onFocus}
-          id="pass-me-through"
-        >
-          <input id="focusable-child-1" />
-          <input id="focusable-child-2" />
-        </FocusableFieldset>
-      </>,
+    render(
+      <FocusableFieldset onBlur={onBlur} onFocus={onFocus}>
+        <input data-testid="focusable-child-1" />
+        <input data-testid="focusable-child-2" />
+      </FocusableFieldset>,
     );
-    const focusableChild1 = container.querySelector("#focusable-child-1")!;
-    const focusableChild2 = container.querySelector("#focusable-child-2")!;
-    await act(async () => {
-      fireEvent.focus(focusableChild1);
-      // Need to give React time to adjust to state
-      await waitForTick();
-      fireEvent.blur(focusableChild1);
-      fireEvent.focus(focusableChild2);
-    });
+    const focusableChild1 = screen.getByTestId("focusable-child-1");
+    const focusableChild2 = screen.getByTestId("focusable-child-2");
+    fireEvent.focus(focusableChild1);
+    await waitForTick();
+    fireEvent.focus(focusableChild2);
     await waitForTick();
 
     // Assert
@@ -129,27 +106,17 @@ describe("FocusableFieldset", () => {
     const onFocus = jest.fn();
 
     // Act
-    const { container } = render(
-      <>
-        <FocusableFieldset
-          onBlur={onBlur}
-          onFocus={onFocus}
-          id="pass-me-through"
-        >
-          <input id="focusable-child-1" />
-          <input id="focusable-child-2" />
-        </FocusableFieldset>
-      </>,
+    render(
+      <FocusableFieldset onBlur={onBlur} onFocus={onFocus}>
+        <input data-testid="focusable-child-1" />
+        <input data-testid="focusable-child-2" />
+      </FocusableFieldset>,
     );
-    const focusableChild1 = container.querySelector("#focusable-child-1")!;
-    const focusableChild2 = container.querySelector("#focusable-child-2")!;
-    await act(async () => {
-      fireEvent.focus(focusableChild1);
-      // Need to give React time to adjust to state
-      await waitForTick();
-      fireEvent.blur(focusableChild1);
-      fireEvent.focus(focusableChild2);
-    });
+    const focusableChild1 = screen.getByTestId("focusable-child-1");
+    const focusableChild2 = screen.getByTestId("focusable-child-2");
+    fireEvent.focus(focusableChild1);
+    await waitForTick();
+    fireEvent.focus(focusableChild2);
     await waitForTick();
 
     // Assert
