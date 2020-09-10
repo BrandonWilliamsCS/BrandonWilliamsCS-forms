@@ -11,6 +11,7 @@
   "author": "Brandon Williams <brandon.williams@blueharborsolutions.com>",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@material-ui/core": "^4.11.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.0.2",
     "@types/jest": "^26.0.13",
@@ -22,6 +23,10 @@
     "typescript": "^4.0.2"
   },
   "peerDependencies": {
+    "@material-ui/core": "^4.11.0",
     "react": "^16.13.1"
+  },
+  "prettier": {
+    "trailingComma": "all"
   }
 }
