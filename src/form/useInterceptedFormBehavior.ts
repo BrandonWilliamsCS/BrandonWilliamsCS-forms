@@ -1,5 +1,5 @@
-import { FormBehaviorHandle } from "core/form/FormBehaviorHandle";
-import { useFormBehavior } from "core/form/useFormBehavior";
+import { FormBehaviorHandle } from "form/FormBehaviorHandle";
+import { useFormBehavior } from "form/useFormBehavior";
 import { Handler } from "utility/Handler";
 import { HandlerInterceptor } from "utility/HandlerInterceptor";
 import { interceptHandler } from "utility/interceptHandler";
