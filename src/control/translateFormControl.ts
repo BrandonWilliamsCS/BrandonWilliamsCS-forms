@@ -1,4 +1,4 @@
-import { Mapper } from "utility/Mapper";
+import { Mapper } from "../utility/Mapper";
 import { FormControlInterface } from "./FormControlInterface";
 
 /**

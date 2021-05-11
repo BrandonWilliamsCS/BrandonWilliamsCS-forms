@@ -1,5 +1,5 @@
-import { Handler } from "utility/Handler";
-import { Mapper } from "utility/Mapper";
+import { Handler } from "../utility/Handler";
+import { Mapper } from "../utility/Mapper";
 import { FormControlInterface } from "./FormControlInterface";
 
 /**

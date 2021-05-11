@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { Handler } from "utility/Handler";
+import { Handler } from "../utility/Handler";
 import { useInterceptedFormBehavior } from "./useInterceptedFormBehavior";
 
 const submitInterceptor = (value: number, base: Handler<string>) => {

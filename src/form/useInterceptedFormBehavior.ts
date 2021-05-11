@@ -1,8 +1,8 @@
-import { FormBehaviorHandle } from "form/FormBehaviorHandle";
-import { useFormBehavior } from "form/useFormBehavior";
-import { Handler } from "utility/Handler";
-import { HandlerInterceptor } from "utility/HandlerInterceptor";
-import { interceptHandler } from "utility/interceptHandler";
+import { FormBehaviorHandle } from "../form/FormBehaviorHandle";
+import { useFormBehavior } from "../form/useFormBehavior";
+import { Handler } from "../utility/Handler";
+import { HandlerInterceptor } from "../utility/HandlerInterceptor";
+import { interceptHandler } from "../utility/interceptHandler";
 
 /**
  * Maintains a value across changes and "submits" that value when triggered, subject to interception.

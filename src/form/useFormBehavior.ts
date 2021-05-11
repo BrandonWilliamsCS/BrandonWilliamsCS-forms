@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Handler } from "utility/Handler";
+import { Handler } from "../utility/Handler";
 import { FormBehaviorHandle } from "./FormBehaviorHandle";
 
 /**

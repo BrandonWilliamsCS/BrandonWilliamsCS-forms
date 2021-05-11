@@ -1,5 +1,5 @@
-import { isArrayHollow } from "utility/isArrayHollow";
-import { isObjectHollow } from "utility/isObjectHollow";
+import { isArrayHollow } from "../utility/isArrayHollow";
+import { isObjectHollow } from "../utility/isObjectHollow";
 import { ValidationError } from "./ValidationError";
 
 /**
