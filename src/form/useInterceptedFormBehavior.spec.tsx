@@ -55,7 +55,7 @@ describe("useInterceptedFormBehavior", () => {
     const { currentValue } = result.current;
     expect(currentValue).toBe(2);
   });
-  it("doesn't update the current valueif the interceptor ignores the value", () => {
+  it("doesn't update the current value if the interceptor ignores the value", () => {
     // Arrange
     const handleSubmit = jest.fn();
     const initialValue: number = 0;
