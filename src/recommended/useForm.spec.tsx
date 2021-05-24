@@ -1,8 +1,7 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { Handler } from "../utility";
 
-import { validityFor, validValidity } from "../validation";
-import { FormControlState } from "./FormControlState";
+import { Handler } from "../utility";
+import { ValidatedValue, validityFor, validValidity } from "../validation";
 import { useForm } from "./useForm";
 
 describe("useForm", () => {
@@ -66,8 +65,8 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       const initialValue = "initial value";
       const secondarySubmitInterceptor = (
-        value: FormControlState<string>,
-        base: Handler<FormControlState<string>>,
+        value: ValidatedValue<string>,
+        base: Handler<ValidatedValue<string>>,
       ) => {
         base(value);
       };
@@ -110,8 +109,8 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       const initialValue = "initial value";
       const secondarySubmitInterceptor = (
-        value: FormControlState<string>,
-        base: Handler<FormControlState<string>>,
+        value: ValidatedValue<string>,
+        base: Handler<ValidatedValue<string>>,
       ) => {};
       // Act
       const { result } = renderHook(() =>

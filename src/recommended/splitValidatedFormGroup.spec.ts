@@ -1,13 +1,12 @@
 import { FormControlInterface } from "../control";
-import { GroupError, validityFor } from "../validation";
-import { FormControlState } from "./FormControlState";
-import { splitFormGroup } from "./splitFormGroup";
+import { GroupError, validityFor, ValidatedValue } from "../validation";
+import { splitValidatedFormGroup } from "./splitValidatedFormGroup";
 
-describe("splitFormGroup", () => {
+describe("splitValidatedFormGroup", () => {
   describe("returned interface", () => {
     it("returns the child value for the given key within the parent interface", () => {
       // Arrange
-      const parentInterface: FormControlInterface<FormControlState<Name>> = {
+      const parentInterface: FormControlInterface<ValidatedValue<Name>> = {
         value: {
           value: {
             first: "Firsty",
@@ -18,7 +17,7 @@ describe("splitFormGroup", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const compositeInterface = splitFormGroup(parentInterface);
+      const compositeInterface = splitValidatedFormGroup(parentInterface);
       const firstNameInterface = compositeInterface("first");
       // Assert
       expect(firstNameInterface.value).toMatchObject({
@@ -31,7 +30,7 @@ describe("splitFormGroup", () => {
     });
     it("returns a child onValueChange for the given key within the parent interface", () => {
       // Arrange
-      const parentInterface: FormControlInterface<FormControlState<Name>> = {
+      const parentInterface: FormControlInterface<ValidatedValue<Name>> = {
         value: {
           value: {
             first: "Firsty",
@@ -42,7 +41,7 @@ describe("splitFormGroup", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const compositeInterface = splitFormGroup(parentInterface);
+      const compositeInterface = splitValidatedFormGroup(parentInterface);
       const firstNameInterface = compositeInterface("first");
       firstNameInterface.onValueChange({
         value: "Secondy",

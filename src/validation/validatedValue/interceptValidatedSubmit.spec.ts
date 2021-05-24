@@ -1,12 +1,12 @@
-import { validityFor, validValidity } from "../validation";
-import { FormControlState } from "./FormControlState";
+import { validityFor, validValidity } from "..";
+import { ValidatedValue } from "../ValidatedValue";
 import { interceptValidatedSubmit } from "./interceptValidatedSubmit";
 
 describe("interceptValidatedSubmit", () => {
   it("calls the submit function with the value when valid", () => {
     // Arrange
     const handleSubmit = jest.fn();
-    const stateValue: FormControlState<Name> = {
+    const stateValue: ValidatedValue<Name> = {
       value: {
         first: "Firsty",
         last: "Lastson",
@@ -21,7 +21,7 @@ describe("interceptValidatedSubmit", () => {
   it("does not call the submit function when invalid", () => {
     // Arrange
     const handleSubmit = jest.fn();
-    const stateValue: FormControlState<Name> = {
+    const stateValue: ValidatedValue<Name> = {
       value: {
         first: "Firsty",
         last: "Lastson",

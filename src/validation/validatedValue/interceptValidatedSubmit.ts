@@ -1,8 +1,8 @@
-import { Handler } from "../utility";
-import { FormControlState } from "./FormControlState";
+import { Handler } from "../../utility";
+import { ValidatedValue } from "../ValidatedValue";
 
 export function interceptValidatedSubmit<TRaw, TFinal>(
-  controlState: FormControlState<TRaw>,
+  controlState: ValidatedValue<TRaw>,
   onValidSubmit: Handler<TFinal>,
 ): void {
   if (controlState.validity.isValid) {
