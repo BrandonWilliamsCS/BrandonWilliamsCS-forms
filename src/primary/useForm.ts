@@ -10,7 +10,7 @@ import {
   initialValidatedValue,
   interceptValidatedSubmit,
   ValidatedValue,
-} from "../validation/validatedValue/";
+} from "../validation/validatedValue/index";
 
 export function useForm<TRaw, TFinal>(
   onSubmit: (value: TFinal) => Promise<void>,
