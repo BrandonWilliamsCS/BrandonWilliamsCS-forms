@@ -13,6 +13,13 @@ import {
 
 export function splitValidatedFormArray<T>(
   arrayInterface: FormControlInterface<ValidatedValue<T[]>>,
+): FormControlInterface<ValidatedValue<T>>[] {
+  const compositeInterface = splitValidatedFormArrayComposite(arrayInterface);
+  return arrayInterface.value.value.map((_, i) => compositeInterface(i));
+}
+
+export function splitValidatedFormArrayComposite<T>(
+  arrayInterface: FormControlInterface<ValidatedValue<T[]>>,
 ): CompositeFormControlInterface<ValidatedArrayMap<T>> {
   return splitFormControl<ValidatedValue<T[]>, ValidatedArrayMap<T>>(
     arrayInterface,
