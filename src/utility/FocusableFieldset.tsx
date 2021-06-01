@@ -1,5 +1,6 @@
 import React from "react";
 
+/** Groups form elements together in a fieldset while tracking focus. */
 export function FocusableFieldset({
   children,
   onBlur,

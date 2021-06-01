@@ -12,6 +12,13 @@ import {
   ValidatedValue,
 } from "../validation/validatedValue/index";
 
+/**
+ * Encapsulates several behaviors that enhance basic form behavior.
+ * @param onSubmit What to do with the form's value when ultimately submitted
+ * @param initialValue (deprecated)
+ * @param secondarySubmitInterceptor optionally intercepts submit after validation
+ * @param changeInterceptor optionally intercepts changes to the form value
+ */
 export function useForm<TRaw, TFinal>(
   onSubmit: (value: TFinal) => Promise<void>,
   initialValue: TRaw,

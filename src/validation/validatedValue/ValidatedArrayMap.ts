@@ -9,10 +9,16 @@ import {
 import { ValueExtractor, ValueRecombiner } from "../../control";
 import { ValidatedValue } from "../ValidatedValue";
 
+/**
+ * Expresses the relationship between an array value and its child values.
+ */
 export type ValidatedArrayMap<T> = {
   [key in number]: ValidatedValue<T>;
 };
 
+/**
+ * A ValueExtractor function that pulls children from an array of form values by index.
+ */
 export const extractArrayChild = <T>(
   arrayValue: ValidatedValue<T[]> | undefined,
   index: number,
@@ -21,6 +27,7 @@ export const extractArrayChild = <T>(
     value: arrayValue.value[index],
     validity: extractArrayChildValidity(arrayValue, index),
   };
+/** Simply returns `extractArrayChild`, but provides a better generic type */
 export function getExtractArrayChild<T>(): ValueExtractor<
   ValidatedValue<T[]>,
   ValidatedArrayMap<T>
@@ -28,6 +35,9 @@ export function getExtractArrayChild<T>(): ValueExtractor<
   return extractArrayChild;
 }
 
+/**
+ * A ValueRecombiner function that places a child value into the array value by index.
+ */
 export const recombineArrayChild = <T>(
   prevArrayValue: ValidatedValue<T[]> | undefined,
   nextChildValue: ValidatedValue<T>,
@@ -44,6 +54,7 @@ export const recombineArrayChild = <T>(
     ),
   };
 };
+/** Simply returns `recombineArrayChild`, but provides a better generic type */
 export function getRecombineArrayChild<T>(): ValueRecombiner<
   ValidatedValue<T[]>,
   ValidatedArrayMap<T>

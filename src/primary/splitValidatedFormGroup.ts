@@ -11,6 +11,11 @@ import {
   ValidatedGroupMap,
 } from "../validation/validatedValue/ValidatedGroupMap";
 
+/**
+ * Splits a FormControlInterface that represents a group of children into its
+ * component child interfaces.
+ * @param groupInterface A FormControlInterface representing a string-keyed group
+ */
 export function splitValidatedFormGroup<T extends Record<string, any>>(
   groupInterface: FormControlInterface<ValidatedValue<Partial<T>>>,
 ): CompositeFormControlInterface<ValidatedGroupMap<T>> {

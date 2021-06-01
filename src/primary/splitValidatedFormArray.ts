@@ -11,6 +11,11 @@ import {
   ValidatedArrayMap,
 } from "../validation/validatedValue/ValidatedArrayMap";
 
+/**
+ * Splits a FormControlInterface that represents a sequence of children into its
+ * component child interfaces.
+ * @param arrayInterface A FormControlInterface representing a sequence
+ */
 export function splitValidatedFormArray<T>(
   arrayInterface: FormControlInterface<ValidatedValue<T[]>>,
 ): FormControlInterface<ValidatedValue<T>>[] {

@@ -9,10 +9,16 @@ import {
 import { ValueExtractor, ValueRecombiner } from "../../control";
 import { ValidatedValue } from "../ValidatedValue";
 
+/**
+ * Expresses the relationship between a group value and its child values (by key).
+ */
 export type ValidatedGroupMap<T extends Record<string, any>> = {
   [key in keyof T & string]: ValidatedValue<T[key]>;
 };
 
+/**
+ * A ValueExtractor function that pulls children from a group/object of form objects by key.
+ */
 export const extractGroupChild = <T, K extends keyof ValidatedGroupMap<T>>(
   groupValue: ValidatedValue<Partial<T>> | undefined,
   key: K,
@@ -25,6 +31,7 @@ export const extractGroupChild = <T, K extends keyof ValidatedGroupMap<T>>(
         validity: extractGroupChildValidity(groupValue, key),
       }
     : undefined;
+/** Simply returns `extractGroupChild`, but provides a better generic type */
 export function getExtractGroupChild<T>(): ValueExtractor<
   ValidatedValue<Partial<T>>,
   ValidatedGroupMap<T>
@@ -32,6 +39,9 @@ export function getExtractGroupChild<T>(): ValueExtractor<
   return extractGroupChild;
 }
 
+/**
+ * A ValueRecombiner function that places a child value into the group value by key.
+ */
 export const recombineGroupChild = <T, K extends keyof ValidatedGroupMap<T>>(
   prevGroupValue: ValidatedValue<Partial<T>> | undefined,
   nextChildValue: ValidatedValue<T[K]>,
@@ -47,6 +57,7 @@ export const recombineGroupChild = <T, K extends keyof ValidatedGroupMap<T>>(
     key,
   ),
 });
+/** Simply returns `recombineGroupChild`, but provides a better generic type */
 export function getRecombineGroupChild<T>(): ValueRecombiner<
   ValidatedValue<Partial<T>>,
   ValidatedGroupMap<T>
