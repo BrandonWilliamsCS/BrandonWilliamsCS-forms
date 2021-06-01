@@ -7,10 +7,10 @@ import { ValidatedValue } from "../ValidatedValue";
  * @param onValidSubmit initiates a confirmed/validated submit
  */
 export function interceptValidatedSubmit<TRaw, TFinal>(
-  value: ValidatedValue<TRaw>,
+  value: ValidatedValue<TRaw> | undefined,
   onValidSubmit: Handler<TFinal>,
 ): void {
-  if (value.validity.isValid) {
+  if (value?.validity.isValid) {
     // Trust that `isValid` implies the value is really TFinal.
     return onValidSubmit(value.value as unknown as TFinal);
   }

@@ -6,27 +6,22 @@ import { useForm } from "./useForm";
 
 describe("useForm", () => {
   describe("currentValue", () => {
-    it("is initially equal to the provided initial value, marked as valid", async () => {
+    it("is initially undefined", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
-      const initialValue = "initial value";
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit, initialValue));
+      const { result } = renderHook(() => useForm(handleSubmit));
       // Assert
       const { currentValue } = result.current;
-      expect(currentValue).toMatchObject({
-        value: "initial value",
-        validity: validValidity,
-      });
+      expect(currentValue).toBeUndefined();
     });
   });
   describe("changeValue", () => {
     it("updates the current value when called", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
-      const initialValue = "initial value";
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit, initialValue));
+      const { result } = renderHook(() => useForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -41,11 +36,10 @@ describe("useForm", () => {
     it("doesn't update the current value if the interceptor ignores", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
-      const initialValue = "initial value";
       const changeInterceptor = () => {};
       // Act
       const { result } = renderHook(() =>
-        useForm(handleSubmit, initialValue, undefined, changeInterceptor),
+        useForm(handleSubmit, undefined, changeInterceptor),
       );
       act(() => {
         const { changeValue } = result.current;
@@ -56,14 +50,13 @@ describe("useForm", () => {
       });
       // Assert
       const { currentValue } = result.current;
-      expect(currentValue).toMatchObject({ value: "initial value" });
+      expect(currentValue).toBeUndefined();
     });
   });
   describe("triggerSubmit", () => {
     it("calls onSubmit with the current value when the interceptor continues", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      const initialValue = "initial value";
       const secondarySubmitInterceptor = (
         value: ValidatedValue<string>,
         base: Handler<ValidatedValue<string>>,
@@ -72,8 +65,15 @@ describe("useForm", () => {
       };
       // Act
       const { result } = renderHook(() =>
-        useForm(handleSubmit, initialValue, secondarySubmitInterceptor),
+        useForm(handleSubmit, secondarySubmitInterceptor),
       );
+      act(() => {
+        const { changeValue } = result.current;
+        changeValue({
+          value: "different value",
+          validity: validValidity,
+        });
+      });
       act(() => {
         const { triggerSubmit } = result.current;
         triggerSubmit();
@@ -84,9 +84,15 @@ describe("useForm", () => {
     it("doesn't call onSubmit when the value is invalid", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      const initialValue = "initial value";
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit, initialValue));
+      const { result } = renderHook(() => useForm(handleSubmit));
+      act(() => {
+        const { changeValue } = result.current;
+        changeValue({
+          value: "different value",
+          validity: validValidity,
+        });
+      });
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -107,15 +113,21 @@ describe("useForm", () => {
     it("doesn't call onSubmit when the secondary interceptor ignores", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      const initialValue = "initial value";
       const secondarySubmitInterceptor = (
         value: ValidatedValue<string>,
         base: Handler<ValidatedValue<string>>,
       ) => {};
       // Act
       const { result } = renderHook(() =>
-        useForm(handleSubmit, initialValue, secondarySubmitInterceptor),
+        useForm(handleSubmit, secondarySubmitInterceptor),
       );
+      act(() => {
+        const { changeValue } = result.current;
+        changeValue({
+          value: "different value",
+          validity: validValidity,
+        });
+      });
       act(() => {
         const { triggerSubmit } = result.current;
         triggerSubmit();
@@ -128,9 +140,8 @@ describe("useForm", () => {
     it("is undefined before first submit", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      const initialValue = "initial value";
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit, initialValue));
+      const { result } = renderHook(() => useForm(handleSubmit));
       // Assert
       const { submitStatus } = result.current;
       expect(submitStatus).toBeUndefined();
@@ -138,9 +149,15 @@ describe("useForm", () => {
     it("reports processing before submit completes", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      const initialValue = "initial value";
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit, initialValue));
+      const { result } = renderHook(() => useForm(handleSubmit));
+      act(() => {
+        const { changeValue } = result.current;
+        changeValue({
+          value: "different value",
+          validity: validValidity,
+        });
+      });
       act(() => {
         const { triggerSubmit } = result.current;
         triggerSubmit();
@@ -149,13 +166,19 @@ describe("useForm", () => {
       const { submitStatus } = result.current;
       expect(submitStatus?.isPending).toBe(true);
     });
-    it("uses the submit promise as its sorce", async () => {
+    it("uses the submit promise as its source", async () => {
       // Arrange
       const { promise } = makePromise<void>();
       const handleSubmit = jest.fn().mockReturnValue(promise);
-      const initialValue = "initial value";
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit, initialValue));
+      const { result } = renderHook(() => useForm(handleSubmit));
+      act(() => {
+        const { changeValue } = result.current;
+        changeValue({
+          value: "different value",
+          validity: validValidity,
+        });
+      });
       act(() => {
         const { triggerSubmit } = result.current;
         triggerSubmit();
@@ -168,9 +191,15 @@ describe("useForm", () => {
       // Arrange
       const { promise, resolve } = makePromise<void>();
       const handleSubmit = jest.fn().mockReturnValue(promise);
-      const initialValue = "initial value";
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit, initialValue));
+      const { result } = renderHook(() => useForm(handleSubmit));
+      act(() => {
+        const { changeValue } = result.current;
+        changeValue({
+          value: "different value",
+          validity: validValidity,
+        });
+      });
       act(() => {
         const { triggerSubmit } = result.current;
         triggerSubmit();
