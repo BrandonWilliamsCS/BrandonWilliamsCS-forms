@@ -14,7 +14,7 @@ describe("facilitateIterativeChanges", () => {
         value: 0,
         onValueChange: jest.fn(),
       };
-      const stepper = (n: number) => n + 1;
+      const stepper = (n: number | undefined) => (n ?? 0) + 1;
       // Act
       const iteratableHandler = facilitateIterativeChanges(originalInterface);
       iteratableHandler(stepper);

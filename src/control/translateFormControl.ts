@@ -14,7 +14,7 @@ import { FormControlInterface } from "./FormControlInterface";
  */
 export function translateFormControl<S, T>(
   sourceInterface: FormControlInterface<S>,
-  mapValue: Mapper<S, T>,
+  mapValue: Mapper<S | undefined, T | undefined>,
   remapValue: Mapper<T, S>,
 ): FormControlInterface<T> {
   return {

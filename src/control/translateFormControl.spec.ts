@@ -1,7 +1,7 @@
 import { FormControlInterface } from "./FormControlInterface";
 import { translateFormControl } from "./translateFormControl";
 
-const mapper = (value: number) => `${value}`;
+const mapper = (value: number | undefined) => `${value}`;
 const remapper = (value: string) => Number.parseInt(value, 10);
 
 describe("translateFormControl", () => {

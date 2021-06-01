@@ -14,36 +14,41 @@ export type ValidatedGroupMap<T extends Record<string, any>> = {
 };
 
 export const extractGroupChild = <T, K extends keyof ValidatedGroupMap<T>>(
-  groupValue: ValidatedValue<T>,
+  groupValue: ValidatedValue<Partial<T>> | undefined,
   key: K,
-) => ({
-  value: groupValue.value[key],
-  validity: extractGroupChildValidity(groupValue, key),
-});
+) =>
+  groupValue && key in groupValue.value
+    ? {
+        // This is technically `Partial<T>`, but we just confirmed that at least
+        // this key is present and can is "enough of" a `T` for our needs.
+        value: (groupValue.value as T)[key],
+        validity: extractGroupChildValidity(groupValue, key),
+      }
+    : undefined;
 export function getExtractGroupChild<T>(): ValueExtractor<
-  ValidatedValue<T>,
+  ValidatedValue<Partial<T>>,
   ValidatedGroupMap<T>
 > {
   return extractGroupChild;
 }
 
 export const recombineGroupChild = <T, K extends keyof ValidatedGroupMap<T>>(
-  prevGroupValue: ValidatedValue<T>,
+  prevGroupValue: ValidatedValue<Partial<T>> | undefined,
   nextChildValue: ValidatedValue<T[K]>,
   key: K,
 ) => ({
   value: {
-    ...prevGroupValue.value,
+    ...prevGroupValue?.value,
     [key]: nextChildValue.value,
   },
   validity: updateGroupValidity<T>(
-    prevGroupValue.validity,
+    prevGroupValue?.validity,
     nextChildValue.validity,
     key,
   ),
 });
 export function getRecombineGroupChild<T>(): ValueRecombiner<
-  ValidatedValue<T>,
+  ValidatedValue<Partial<T>>,
   ValidatedGroupMap<T>
 > {
   return recombineGroupChild;
@@ -59,11 +64,12 @@ function extractGroupChildValidity<T, K extends keyof T & string>(
 }
 
 function updateGroupValidity<T extends Record<string, any>>(
-  currentOuterValidity: Validity,
+  currentOuterValidity: Validity | undefined,
   nextItemValidity: Validity,
   innerName: keyof T & string,
 ): Validity {
-  const currentOuterError = validityError(currentOuterValidity);
+  const currentOuterError =
+    currentOuterValidity && validityError(currentOuterValidity);
   // In the buggy case that the validity doesn't fit a group, just ditch the error.
   const currentGroupError =
     currentOuterError?.variant === "group" ? currentOuterError : undefined;

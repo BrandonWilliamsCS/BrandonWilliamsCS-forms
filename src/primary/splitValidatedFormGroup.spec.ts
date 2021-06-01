@@ -6,7 +6,9 @@ describe("splitValidatedFormGroup", () => {
   describe("returned interface", () => {
     it("returns the child value for the given key within the parent interface", () => {
       // Arrange
-      const parentInterface: FormControlInterface<ValidatedValue<Name>> = {
+      const parentInterface: FormControlInterface<
+        ValidatedValue<Partial<Name>>
+      > = {
         value: {
           value: {
             first: "Firsty",
@@ -28,9 +30,25 @@ describe("splitValidatedFormGroup", () => {
         }),
       });
     });
+    it("returns a default child value for an undefined parent value", () => {
+      // Arrange
+      const parentInterface: FormControlInterface<
+        ValidatedValue<Partial<Name>>
+      > = {
+        value: undefined,
+        onValueChange: jest.fn(),
+      };
+      // Act
+      const compositeInterface = splitValidatedFormGroup(parentInterface);
+      const firstNameInterface = compositeInterface("first");
+      // Assert
+      expect(firstNameInterface.value).toBeUndefined();
+    });
     it("returns a child onValueChange for the given key within the parent interface", () => {
       // Arrange
-      const parentInterface: FormControlInterface<ValidatedValue<Name>> = {
+      const parentInterface: FormControlInterface<
+        ValidatedValue<Partial<Name>>
+      > = {
         value: {
           value: {
             first: "Firsty",
@@ -67,6 +85,41 @@ describe("splitValidatedFormGroup", () => {
             last: {
               variant: "field",
               errors: [{ type: "Last name is wrong" }],
+            },
+          },
+        }),
+      });
+    });
+    it("returns a child-only onValueChange for the given key when there is no parent value", () => {
+      // Arrange
+      const parentInterface: FormControlInterface<
+        ValidatedValue<Partial<Name>>
+      > = {
+        value: undefined,
+        onValueChange: jest.fn(),
+      };
+      // Act
+      const compositeInterface = splitValidatedFormGroup(parentInterface);
+      const firstNameInterface = compositeInterface("first");
+      firstNameInterface.onValueChange({
+        value: "Secondy",
+        validity: validityFor({
+          variant: "field",
+          errors: [{ type: "First name is wrong" }],
+        }),
+      });
+      // Assert
+      expect(parentInterface.onValueChange).toHaveBeenCalledWith({
+        value: {
+          first: "Secondy",
+        },
+        validity: validityFor({
+          variant: "group",
+          errors: [],
+          innerErrors: {
+            first: {
+              variant: "field",
+              errors: [{ type: "First name is wrong" }],
             },
           },
         }),

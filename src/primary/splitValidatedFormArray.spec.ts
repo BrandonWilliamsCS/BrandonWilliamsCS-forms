@@ -7,7 +7,7 @@ import {
 
 describe("splitValidatedFormArray", () => {
   describe("returned interface", () => {
-    it("returns the child value for the given key within the parent interface", () => {
+    it("returns the child value for the given index within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
         value: {
@@ -28,7 +28,18 @@ describe("splitValidatedFormArray", () => {
         }),
       });
     });
-    it("triggers a child onValueChange for the given key within the parent interface", () => {
+    it("provides no child interfaces for an undefined parent value", () => {
+      // Arrange
+      const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
+        value: undefined,
+        onValueChange: jest.fn(),
+      };
+      // Act
+      const interfaceArray = splitValidatedFormArray(parentInterface);
+      // Assert
+      expect(interfaceArray.length).toBe(0);
+    });
+    it("triggers a child onValueChange for the given index within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
         value: {
@@ -71,7 +82,7 @@ describe("splitValidatedFormArray", () => {
 
 describe("splitValidatedFormArrayComposite", () => {
   describe("returned interface", () => {
-    it("returns the child value for the given key within the parent interface", () => {
+    it("returns the child value for the given index within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
         value: {
@@ -93,7 +104,19 @@ describe("splitValidatedFormArrayComposite", () => {
         }),
       });
     });
-    it("triggers a child onValueChange for the given key within the parent interface", () => {
+    it("returns a default child value for an undefined parent value", () => {
+      // Arrange
+      const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
+        value: undefined,
+        onValueChange: jest.fn(),
+      };
+      // Act
+      const interfaceArray = splitValidatedFormArrayComposite(parentInterface);
+      const firstNameInterface = interfaceArray(0);
+      // Assert
+      expect(firstNameInterface.value).toBeUndefined();
+    });
+    it("triggers a child onValueChange for the given index within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
         value: {
@@ -124,6 +147,39 @@ describe("splitValidatedFormArrayComposite", () => {
               variant: "field",
               errors: [{ type: "First item is still wrong" }],
             },
+            {
+              variant: "field",
+              errors: [{ type: "Second item is wrong" }],
+            },
+          ],
+        }),
+      });
+    });
+    it("returns a child-only onValueChange for the given key when there is no parent value", () => {
+      // Arrange
+      const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
+        value: undefined,
+        onValueChange: jest.fn(),
+      };
+      // Act
+      const compositeInterface =
+        splitValidatedFormArrayComposite(parentInterface);
+      const secondNameInterface = compositeInterface(1);
+      secondNameInterface.onValueChange({
+        value: "second",
+        validity: validityFor({
+          variant: "field",
+          errors: [{ type: "Second item is wrong" }],
+        }),
+      });
+      // Assert
+      expect(parentInterface.onValueChange).toHaveBeenCalledWith({
+        value: [, "second"],
+        validity: validityFor({
+          variant: "array",
+          errors: [],
+          innerErrors: [
+            ,
             {
               variant: "field",
               errors: [{ type: "Second item is wrong" }],

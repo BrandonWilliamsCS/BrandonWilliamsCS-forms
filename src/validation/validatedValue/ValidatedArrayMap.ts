@@ -14,12 +14,13 @@ export type ValidatedArrayMap<T> = {
 };
 
 export const extractArrayChild = <T>(
-  arrayValue: ValidatedValue<T[]>,
+  arrayValue: ValidatedValue<T[]> | undefined,
   index: number,
-) => ({
-  value: arrayValue.value[index],
-  validity: extractArrayChildValidity(arrayValue, index),
-});
+) =>
+  arrayValue && {
+    value: arrayValue.value[index],
+    validity: extractArrayChildValidity(arrayValue, index),
+  };
 export function getExtractArrayChild<T>(): ValueExtractor<
   ValidatedValue<T[]>,
   ValidatedArrayMap<T>
@@ -28,16 +29,16 @@ export function getExtractArrayChild<T>(): ValueExtractor<
 }
 
 export const recombineArrayChild = <T>(
-  prevArrayValue: ValidatedValue<T[]>,
+  prevArrayValue: ValidatedValue<T[]> | undefined,
   nextChildValue: ValidatedValue<T>,
   index: number,
 ) => {
-  const nextArrayValue = [...prevArrayValue.value];
+  const nextArrayValue = prevArrayValue ? [...prevArrayValue.value] : [];
   nextArrayValue[index] = nextChildValue.value;
   return {
     value: nextArrayValue,
-    validity: updateArrayValidity<T>(
-      prevArrayValue.validity,
+    validity: updateArrayValidity(
+      prevArrayValue?.validity,
       nextChildValue.validity,
       index,
     ),
@@ -59,12 +60,13 @@ function extractArrayChildValidity<T>(
   );
 }
 
-function updateArrayValidity<T>(
-  currentOuterValidity: Validity,
+function updateArrayValidity(
+  currentOuterValidity: Validity | undefined,
   nextItemValidity: Validity,
   index: number,
 ): Validity {
-  const currentOuterError = validityError(currentOuterValidity);
+  const currentOuterError =
+    currentOuterValidity && validityError(currentOuterValidity);
   // In the buggy case that the validity doesn't fit an array, just ditch the error.
   const currentArrayError =
     currentOuterError?.variant === "array" ? currentOuterError : undefined;

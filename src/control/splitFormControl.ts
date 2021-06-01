@@ -78,9 +78,9 @@ export type CompositeFormControlInterface<TMap> = <K extends keyof TMap>(
  * @typeParam K - A (possibly singleton) set of keys the extraction can cover.
  */
 export type ValueExtractor<TParent, TMap> = <K extends keyof TMap>(
-  parentValue: TParent,
+  parentValue: TParent | undefined,
   key: K,
-) => TMap[K];
+) => TMap[K] | undefined;
 
 /**
  * Generates a new parent value based on a previous value and a particular new child value.
@@ -92,7 +92,7 @@ export type ValueExtractor<TParent, TMap> = <K extends keyof TMap>(
  * @typeParam K - A (possibly singleton) set of keys indicating possible children to recombine.
  */
 export type ValueRecombiner<TParent, TMap> = <K extends keyof TMap>(
-  prevParentValue: TParent,
+  prevParentValue: TParent | undefined,
   nextChildValue: TMap[K],
   key: K,
 ) => TParent;
@@ -109,8 +109,8 @@ export type ValueRecombiner<TParent, TMap> = <K extends keyof TMap>(
  * @typeParam K - A (possibly singleton) set of keys that may direct translation.
  */
 function translateFormControlForKey<TParent, TMap, K extends keyof TMap>(
-  parentValue: TParent,
-  onChange: Handler<Mapper<TParent, TParent>>,
+  parentValue: TParent | undefined,
+  onChange: Handler<Mapper<TParent | undefined, TParent>>,
   extractChildValue: ValueExtractor<TParent, TMap>,
   recombineChildValue: ValueRecombiner<TParent, TMap>,
   key: K,

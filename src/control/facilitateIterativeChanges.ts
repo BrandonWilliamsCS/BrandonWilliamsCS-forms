@@ -9,7 +9,7 @@ import { FormControlInterface } from "./FormControlInterface";
  */
 export function facilitateIterativeChanges<T>(
   controlInterface: FormControlInterface<T>,
-): Handler<Mapper<T>> {
+): Handler<Mapper<T | undefined, T>> {
   // Close over a variable that records the latest value
   let latestValue = controlInterface.value;
   return (stepper) => {
