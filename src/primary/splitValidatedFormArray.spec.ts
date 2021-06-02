@@ -1,12 +1,9 @@
 import { FormControlInterface } from "../control";
 import { ArrayError, validityFor, ValidatedValue } from "../validation";
-import {
-  splitValidatedFormArray,
-  splitValidatedFormArrayComposite,
-} from "./splitValidatedFormArray";
+import { splitValidatedFormArray } from "./splitValidatedFormArray";
 
 describe("splitValidatedFormArray", () => {
-  describe("returned interface", () => {
+  describe("interfaceArray", () => {
     it("returns the child value for the given index within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
@@ -17,7 +14,7 @@ describe("splitValidatedFormArray", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const interfaceArray = splitValidatedFormArray(parentInterface);
+      const { interfaceArray } = splitValidatedFormArray(parentInterface);
       const firstNameInterface = interfaceArray[0];
       // Assert
       expect(firstNameInterface.value).toMatchObject({
@@ -35,7 +32,7 @@ describe("splitValidatedFormArray", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const interfaceArray = splitValidatedFormArray(parentInterface);
+      const { interfaceArray } = splitValidatedFormArray(parentInterface);
       // Assert
       expect(interfaceArray.length).toBe(0);
     });
@@ -49,7 +46,7 @@ describe("splitValidatedFormArray", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const interfaceArray = splitValidatedFormArray(parentInterface);
+      const { interfaceArray } = splitValidatedFormArray(parentInterface);
       const firstNameInterface = interfaceArray[0];
       firstNameInterface.onValueChange({
         value: "first?",
@@ -78,10 +75,7 @@ describe("splitValidatedFormArray", () => {
       });
     });
   });
-});
-
-describe("splitValidatedFormArrayComposite", () => {
-  describe("returned interface", () => {
+  describe("compositeInterface", () => {
     it("returns the child value for the given index within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
@@ -92,8 +86,7 @@ describe("splitValidatedFormArrayComposite", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const compositeInterface =
-        splitValidatedFormArrayComposite(parentInterface);
+      const { compositeInterface } = splitValidatedFormArray(parentInterface);
       const firstNameInterface = compositeInterface(0);
       // Assert
       expect(firstNameInterface.value).toMatchObject({
@@ -111,8 +104,8 @@ describe("splitValidatedFormArrayComposite", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const interfaceArray = splitValidatedFormArrayComposite(parentInterface);
-      const firstNameInterface = interfaceArray(0);
+      const { compositeInterface } = splitValidatedFormArray(parentInterface);
+      const firstNameInterface = compositeInterface(0);
       // Assert
       expect(firstNameInterface.value).toBeUndefined();
     });
@@ -126,8 +119,7 @@ describe("splitValidatedFormArrayComposite", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const compositeInterface =
-        splitValidatedFormArrayComposite(parentInterface);
+      const { compositeInterface } = splitValidatedFormArray(parentInterface);
       const firstNameInterface = compositeInterface(0);
       firstNameInterface.onValueChange({
         value: "first?",
@@ -162,8 +154,7 @@ describe("splitValidatedFormArrayComposite", () => {
         onValueChange: jest.fn(),
       };
       // Act
-      const compositeInterface =
-        splitValidatedFormArrayComposite(parentInterface);
+      const { compositeInterface } = splitValidatedFormArray(parentInterface);
       const secondNameInterface = compositeInterface(1);
       secondNameInterface.onValueChange({
         value: "second",

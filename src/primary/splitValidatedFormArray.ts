@@ -18,17 +18,20 @@ import {
  */
 export function splitValidatedFormArray<T>(
   arrayInterface: FormControlInterface<ValidatedValue<T[]>>,
-): FormControlInterface<ValidatedValue<T>>[] {
-  const compositeInterface = splitValidatedFormArrayComposite(arrayInterface);
-  return arrayInterface.value?.value.map((_, i) => compositeInterface(i)) ?? [];
+): FormArrayBundle<T> {
+  const compositeInterface = splitFormControl<
+    ValidatedValue<T[]>,
+    ValidatedArrayMap<T>
+  >(arrayInterface, extractArrayChild, recombineArrayChild);
+  const interfaceArray =
+    arrayInterface.value?.value.map((_, i) => compositeInterface(i)) ?? [];
+  return {
+    compositeInterface,
+    interfaceArray,
+  };
 }
 
-export function splitValidatedFormArrayComposite<T>(
-  arrayInterface: FormControlInterface<ValidatedValue<T[]>>,
-): CompositeFormControlInterface<ValidatedArrayMap<T>> {
-  return splitFormControl<ValidatedValue<T[]>, ValidatedArrayMap<T>>(
-    arrayInterface,
-    extractArrayChild,
-    recombineArrayChild,
-  );
+export interface FormArrayBundle<T> {
+  compositeInterface: CompositeFormControlInterface<ValidatedArrayMap<T>>;
+  interfaceArray: FormControlInterface<ValidatedValue<T>>[];
 }
