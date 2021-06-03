@@ -1,4 +1,5 @@
 import { ArrayError, validityFor, ValidatedValue } from "../../validation";
+import { validValidity } from "../Validity";
 import { extractArrayChild, recombineArrayChild } from "./ValidatedArrayMap";
 
 describe("extractArrayChild", () => {
@@ -21,9 +22,20 @@ describe("extractArrayChild", () => {
   });
   it("provides no child value for an undefined parent value", () => {
     // Arrange
-    const parentInterface = undefined;
+    const parentValue = undefined;
     // Act
-    const firstChildValue = extractArrayChild(parentInterface, 0);
+    const firstChildValue = extractArrayChild(parentValue, 0);
+    // Assert
+    expect(firstChildValue).toBeUndefined();
+  });
+  it("provides no child value for an empty parent cell", () => {
+    // Arrange
+    const parentValue: ValidatedValue<(string | undefined)[]> = {
+      value: [, "second"],
+      validity: validityFor(fullError),
+    };
+    // Act
+    const firstChildValue = extractArrayChild(parentValue, 0);
     // Assert
     expect(firstChildValue).toBeUndefined();
   });
@@ -63,6 +75,23 @@ describe("recombineArrayChild", () => {
         ],
       }),
     });
+  });
+
+  it("Maintains empty cells within the parent array", () => {
+    // Arrange
+    const parentValue: ValidatedValue<(string | undefined)[]> = {
+      value: [,],
+      validity: validityFor(fullError),
+    };
+    const childValue: ValidatedValue<string> = {
+      value: "second",
+      validity: validValidity,
+    };
+    // Act
+    const nextParentValue = recombineArrayChild(parentValue, childValue, 1);
+    // Assert
+    expect(0 in nextParentValue.value).toBe(false);
+    expect(1 in nextParentValue.value).toBe(true);
   });
 });
 

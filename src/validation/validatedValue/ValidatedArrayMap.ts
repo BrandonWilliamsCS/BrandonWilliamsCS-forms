@@ -23,10 +23,12 @@ export const extractArrayChild = <T>(
   arrayValue: ValidatedValue<T[]> | undefined,
   index: number,
 ) =>
-  arrayValue && {
-    value: arrayValue.value[index],
-    validity: extractArrayChildValidity(arrayValue, index),
-  };
+  arrayValue && index in arrayValue.value
+    ? {
+        value: arrayValue.value[index],
+        validity: extractArrayChildValidity(arrayValue, index),
+      }
+    : undefined;
 /** Simply returns `extractArrayChild`, but provides a better generic type */
 export function getExtractArrayChild<T>(): ValueExtractor<
   ValidatedValue<T[]>,
@@ -43,7 +45,7 @@ export const recombineArrayChild = <T>(
   nextChildValue: ValidatedValue<T>,
   index: number,
 ) => {
-  const nextArrayValue = prevArrayValue ? [...prevArrayValue.value] : [];
+  const nextArrayValue = prevArrayValue ? cloneArray(prevArrayValue.value) : [];
   nextArrayValue[index] = nextChildValue.value;
   return {
     value: nextArrayValue,
@@ -90,4 +92,9 @@ function updateArrayValidity(
     index,
   );
   return validityFor(newArrayError);
+}
+
+function cloneArray<T>(array: T[]): T[] {
+  // crucially, this preserves empty slots (rather than filling them with undefined)
+  return array.map((x) => x);
 }

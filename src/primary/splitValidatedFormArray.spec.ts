@@ -1,5 +1,10 @@
 import { FormControlInterface } from "../control";
-import { ArrayError, validityFor, ValidatedValue } from "../validation";
+import {
+  ArrayError,
+  validityFor,
+  ValidatedValue,
+  validValidity,
+} from "../validation";
 import { splitValidatedFormArray } from "./splitValidatedFormArray";
 
 describe("splitValidatedFormArray", () => {
@@ -109,6 +114,21 @@ describe("splitValidatedFormArray", () => {
       // Assert
       expect(firstNameInterface.value).toBeUndefined();
     });
+    it("returns a default child value for an empty parent value cell", () => {
+      // Arrange
+      const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
+        value: undefined,
+        onValueChange: jest.fn(),
+      };
+      // Act
+      const { compositeInterface } = splitValidatedFormArray(parentInterface);
+      // change the second value while keeping the first one empty
+      const { onValueChange: changeSecondValue } = compositeInterface(1);
+      changeSecondValue({ value: "second", validity: validValidity });
+      const firstNameInterface = compositeInterface(0);
+      // Assert
+      expect(firstNameInterface.value).toBeUndefined();
+    });
     it("triggers a child onValueChange for the given index within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
@@ -178,6 +198,23 @@ describe("splitValidatedFormArray", () => {
           ],
         }),
       });
+    });
+    it("returns a onValueChange that maintains empty cells in the parent value", () => {
+      // Arrange
+      const onParentValueChange = jest.fn();
+      const parentInterface: FormControlInterface<ValidatedValue<string[]>> = {
+        value: undefined,
+        onValueChange: onParentValueChange,
+      };
+      // Act
+      const { compositeInterface } = splitValidatedFormArray(parentInterface);
+      // change the second value while keeping the first one empty
+      const { onValueChange: changeSecondValue } = compositeInterface(1);
+      changeSecondValue({ value: "second", validity: validValidity });
+      // Assert
+      const nextParentValue: ValidatedValue<string[]> =
+        onParentValueChange.mock.calls[0][0];
+      expect(0 in nextParentValue.value).toBe(false);
     });
   });
 });
