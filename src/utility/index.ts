@@ -1,4 +1,5 @@
 export * from "./combineInterceptors";
+export * from "./filterHandler";
 export * from "./FocusableFieldset";
 export * from "./Handler";
 export * from "./HandlerInterceptor";
