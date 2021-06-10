@@ -4,9 +4,9 @@ import {
   validityFor,
   ValidatedValue,
   validValidity,
-  ValidationError,
 } from "../validation";
 import { splitValidatedFormArray } from "./splitValidatedFormArray";
+import { ValidationError } from "./ValidationError";
 
 describe("splitValidatedFormArray", () => {
   describe("interfaceArray", () => {

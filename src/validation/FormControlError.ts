@@ -1,23 +1,19 @@
 import { isArrayHollow } from "../utility/isArrayHollow";
 import { isObjectHollow } from "../utility/isObjectHollow";
-import { ValidationError } from "./ValidationError";
 
 /**
  * Represents error within some abstracted form control. The control - or, more
  * precisely, the errors attached to it - may be a simple "field", a "group" of
  * errors keyed by string, or an "array" of errors keyed by number.
  */
-export type FormControlError<E extends ValidationError> =
-  | FieldError<E>
-  | GroupError<E>
-  | ArrayError<E>;
+export type FormControlError<E> = FieldError<E> | GroupError<E> | ArrayError<E>;
 
 /**
  * Represents a simple "field"-style error in a form control. It has no inner
  * element errors, but only has a flat array of errors that apply directly to
  * it.
  */
-export interface FieldError<E extends ValidationError> {
+export interface FieldError<E> {
   readonly variant: "field";
   readonly errors: E[];
 }
@@ -27,7 +23,7 @@ export interface FieldError<E extends ValidationError> {
  * control may have its own, flat array of errors, but a group error also
  * represents logical child/inner errors in an object shape.
  */
-export interface GroupError<E extends ValidationError> {
+export interface GroupError<E> {
   readonly variant: "group";
   readonly errors: E[];
   readonly innerErrors: Record<string, FormControlError<E> | undefined>;
@@ -38,7 +34,7 @@ export interface GroupError<E extends ValidationError> {
  * control may have its own, flat array of errors, but an array error also
  * represents logical child/inner errors in an array shape.
  */
-export interface ArrayError<E extends ValidationError> {
+export interface ArrayError<E> {
   readonly variant: "array";
   readonly errors: E[];
   readonly innerErrors: Array<FormControlError<E> | undefined>;
@@ -51,10 +47,7 @@ export interface ArrayError<E extends ValidationError> {
  * @param itemName the name (key) of the item that should receive the next error
  * @returns a new group error that contains the provided item error
  */
-export function addGroupedError<
-  T extends Record<string, any>,
-  E extends ValidationError,
->(
+export function addGroupedError<T extends Record<string, any>, E>(
   currentGroupError: GroupError<E> | undefined,
   nextItemError: FormControlError<E> | undefined,
   itemName: keyof T & string,
@@ -83,7 +76,7 @@ export function addGroupedError<
  * @param itemName the index (key) of the item that should receive the next error
  * @returns a new array error that contains the provided item error
  */
-export function addArrayedError<E extends ValidationError>(
+export function addArrayedError<E>(
   currentArrayError: ArrayError<E> | undefined,
   nextItemError: FormControlError<E> | undefined,
   index: number,

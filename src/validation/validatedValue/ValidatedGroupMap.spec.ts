@@ -1,5 +1,5 @@
 import { GroupError, validityFor, ValidatedValue } from "../../validation";
-import { ValidationError } from "../ValidationError";
+import { ValidationError } from "../../primary/ValidationError";
 import { extractGroupChild, recombineGroupChild } from "./ValidatedGroupMap";
 
 describe("extractGroupChild", () => {

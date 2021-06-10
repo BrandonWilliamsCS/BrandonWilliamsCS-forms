@@ -1,11 +1,7 @@
 import { FormControlInterface } from "../control";
-import {
-  GroupError,
-  validityFor,
-  ValidatedValue,
-  ValidationError,
-} from "../validation";
+import { GroupError, validityFor, ValidatedValue } from "../validation";
 import { splitValidatedFormGroup } from "./splitValidatedFormGroup";
+import { ValidationError } from "./ValidationError";
 
 describe("splitValidatedFormGroup", () => {
   describe("returned interface", () => {

@@ -3,7 +3,7 @@ import {
   FormControlInterface,
   splitFormControl,
 } from "../control";
-import { ValidatedValue, ValidationError } from "../validation";
+import { ValidatedValue } from "../validation";
 
 import {
   extractGroupChild,
@@ -16,14 +16,11 @@ import {
  * component child interfaces.
  * @param groupInterface A FormControlInterface representing a string-keyed group
  */
-export function splitValidatedFormGroup<
-  T extends Record<string, any>,
-  E extends ValidationError,
->(
+export function splitValidatedFormGroup<T extends Record<string, any>, E>(
   groupInterface: FormControlInterface<ValidatedValue<Partial<T>, E>>,
-): CompositeFormControlInterface<ValidatedGroupMap<T, E>> {
+): CompositeFormControlInterface<ValidatedGroupMap<Partial<T>, E>> {
   return splitFormControl<
     ValidatedValue<Partial<T>, E>,
-    ValidatedGroupMap<T, E>
+    ValidatedGroupMap<Partial<T>, E>
   >(groupInterface, extractGroupChild, recombineGroupChild);
 }

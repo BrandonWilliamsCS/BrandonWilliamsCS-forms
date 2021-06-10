@@ -5,7 +5,7 @@ import {
   ArrayError,
   GroupError,
 } from "./FormControlError";
-import { ValidationError } from "./ValidationError";
+import { ValidationError } from "../primary/ValidationError";
 
 describe("addArrayedError", () => {
   it("returns undefined if current and next are non-errors", () => {

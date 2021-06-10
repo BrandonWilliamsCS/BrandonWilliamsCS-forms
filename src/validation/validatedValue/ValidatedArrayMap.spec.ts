@@ -1,5 +1,5 @@
 import { ArrayError, validityFor, ValidatedValue } from "../../validation";
-import { ValidationError } from "../ValidationError";
+import { ValidationError } from "../../primary/ValidationError";
 import { validValidity } from "../Validity";
 import { extractArrayChild, recombineArrayChild } from "./ValidatedArrayMap";
 

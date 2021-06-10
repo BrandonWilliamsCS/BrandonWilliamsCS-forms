@@ -1,17 +1,12 @@
 import { Handler } from "../../utility";
 import { ValidatedValue } from "../ValidatedValue";
-import { ValidationError } from "../ValidationError";
 
 /**
  * Intercepts a submit handler to add validation checks.
  * @param value the form value that may be submitted
  * @param onValidSubmit initiates a confirmed/validated submit
  */
-export function interceptValidatedSubmit<
-  TRaw,
-  TFinal,
-  E extends ValidationError,
->(
+export function interceptValidatedSubmit<TRaw, TFinal, E>(
   value: ValidatedValue<TRaw, E> | undefined,
   onValidSubmit: Handler<TFinal>,
 ): void {

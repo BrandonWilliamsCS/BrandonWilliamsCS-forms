@@ -6,7 +6,6 @@ import {
 
 import { useInterceptedFormBehavior } from "../form";
 import { combineInterceptors, Handler, HandlerInterceptor } from "../utility";
-import { ValidationError } from "../validation";
 import {
   interceptValidatedSubmit,
   ValidatedValue,
@@ -19,7 +18,7 @@ import {
  * @param secondarySubmitInterceptor optionally intercepts submit after validation
  * @param changeInterceptor optionally intercepts changes to the form value
  */
-export function useForm<TRaw, TFinal, E extends ValidationError>(
+export function useForm<TRaw, TFinal, E>(
   onSubmit: (value: TFinal) => Promise<void>,
   secondarySubmitInterceptor?: HandlerInterceptor<TFinal>,
   changeInterceptor?: HandlerInterceptor<ValidatedValue<TRaw, E> | undefined>,
@@ -49,7 +48,7 @@ export function useForm<TRaw, TFinal, E extends ValidationError>(
   };
 }
 
-export interface FormVitals<TRaw, E extends ValidationError> {
+export interface FormVitals<TRaw, E> {
   currentValue: ValidatedValue<TRaw, E> | undefined;
   changeValue: Handler<ValidatedValue<TRaw, E>>;
   triggerSubmit: () => void;

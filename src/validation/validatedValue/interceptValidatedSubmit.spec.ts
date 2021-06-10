@@ -1,6 +1,6 @@
 import { validityFor, validValidity } from "..";
 import { ValidatedValue } from "../ValidatedValue";
-import { ValidationError } from "../ValidationError";
+import { ValidationError } from "../../primary/ValidationError";
 import { interceptValidatedSubmit } from "./interceptValidatedSubmit";
 
 describe("interceptValidatedSubmit", () => {

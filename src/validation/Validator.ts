@@ -1,5 +1,3 @@
-import { ValidationError } from "./ValidationError";
-
 /**
  * Validates a value by computing the errors that apply to it.
  * @remarks
@@ -9,6 +7,4 @@ import { ValidationError } from "./ValidationError";
  * the username - one that happens to be uncertain sometimes. It is suitable to
  * handle the asynchronicity as a value-side concern and validate synchronously.
  */
-export type Validator<T, E extends ValidationError> = (
-  value: T | undefined,
-) => E[] | undefined;
+export type Validator<T, E> = (value: T | undefined) => E[] | undefined;

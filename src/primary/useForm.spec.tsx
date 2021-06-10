@@ -1,13 +1,9 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { Handler } from "../utility";
-import {
-  ValidatedValue,
-  ValidationError,
-  validityFor,
-  validValidity,
-} from "../validation";
+import { ValidatedValue, validityFor, validValidity } from "../validation";
 import { useForm } from "./useForm";
+import { ValidationError } from "./ValidationError";
 
 describe("useForm", () => {
   describe("currentValue", () => {

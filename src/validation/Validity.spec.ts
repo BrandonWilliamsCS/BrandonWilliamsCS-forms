@@ -1,5 +1,5 @@
 import { FormControlError } from "./FormControlError";
-import { ValidationError } from "./ValidationError";
+import { ValidationError } from "../primary/ValidationError";
 import {
   validityError,
   validityFor,

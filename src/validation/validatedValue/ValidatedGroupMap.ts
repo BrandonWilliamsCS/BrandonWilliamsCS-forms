@@ -8,15 +8,11 @@ import {
   validityFor,
 } from "..";
 import { ValidatedValue } from "../ValidatedValue";
-import { ValidationError } from "../ValidationError";
 
 /**
  * Expresses the relationship between a group value and its child values (by key).
  */
-export type ValidatedGroupMap<
-  T extends Record<string, any>,
-  E extends ValidationError,
-> = {
+export type ValidatedGroupMap<T extends Record<string, any>, E> = {
   [key in keyof T & string]: ValidatedValue<T[key], E>;
 };
 
@@ -26,7 +22,7 @@ export type ValidatedGroupMap<
 export const extractGroupChild = <
   T,
   K extends keyof ValidatedGroupMap<T, E>,
-  E extends ValidationError,
+  E,
 >(
   groupValue: ValidatedValue<Partial<T>, E> | undefined,
   key: K,
@@ -40,10 +36,10 @@ export const extractGroupChild = <
       }
     : undefined;
 /** Simply returns `extractGroupChild`, but provides a better generic type */
-export function getExtractGroupChild<
-  T,
-  E extends ValidationError,
->(): ValueExtractor<ValidatedValue<Partial<T>, E>, ValidatedGroupMap<T, E>> {
+export function getExtractGroupChild<T, E>(): ValueExtractor<
+  ValidatedValue<Partial<T>, E>,
+  ValidatedGroupMap<T, E>
+> {
   return extractGroupChild;
 }
 
@@ -53,7 +49,7 @@ export function getExtractGroupChild<
 export const recombineGroupChild = <
   T,
   K extends keyof ValidatedGroupMap<T, E>,
-  E extends ValidationError,
+  E,
 >(
   prevGroupValue: ValidatedValue<Partial<T>, E> | undefined,
   nextChildValue: ValidatedValue<T[K], E>,
@@ -70,27 +66,23 @@ export const recombineGroupChild = <
   ),
 });
 /** Simply returns `recombineGroupChild`, but provides a better generic type */
-export function getRecombineGroupChild<
-  T,
-  E extends ValidationError,
->(): ValueRecombiner<ValidatedValue<Partial<T>, E>, ValidatedGroupMap<T, E>> {
+export function getRecombineGroupChild<T, E>(): ValueRecombiner<
+  ValidatedValue<Partial<T>, E>,
+  ValidatedGroupMap<T, E>
+> {
   return recombineGroupChild;
 }
 
-function extractGroupChildValidity<
-  T,
-  K extends keyof T & string,
-  E extends ValidationError,
->(groupValue: ValidatedValue<T, E>, key: K): Validity<E> {
+function extractGroupChildValidity<T, K extends keyof T & string, E>(
+  groupValue: ValidatedValue<T, E>,
+  key: K,
+): Validity<E> {
   return mapValidity(groupValue.validity, (groupError: FormControlError<E>) =>
     groupError.variant === "group" ? groupError.innerErrors[key] : undefined,
   );
 }
 
-function updateGroupValidity<
-  T extends Record<string, any>,
-  E extends ValidationError,
->(
+function updateGroupValidity<T extends Record<string, any>, E>(
   currentOuterValidity: Validity<E> | undefined,
   nextItemValidity: Validity<E>,
   innerName: keyof T & string,
