@@ -1,11 +1,12 @@
 import { ArrayError, validityFor, ValidatedValue } from "../../validation";
+import { ValidationError } from "../ValidationError";
 import { validValidity } from "../Validity";
 import { extractArrayChild, recombineArrayChild } from "./ValidatedArrayMap";
 
 describe("extractArrayChild", () => {
   it("returns the child value for the given index within the parent value", () => {
     // Arrange
-    const parentValue: ValidatedValue<string[]> = {
+    const parentValue: ValidatedValue<string[], ValidationError> = {
       value: ["first", "second"],
       validity: validityFor(fullError),
     };
@@ -30,10 +31,11 @@ describe("extractArrayChild", () => {
   });
   it("provides no child value for an empty parent cell", () => {
     // Arrange
-    const parentValue: ValidatedValue<(string | undefined)[]> = {
-      value: [, "second"],
-      validity: validityFor(fullError),
-    };
+    const parentValue: ValidatedValue<(string | undefined)[], ValidationError> =
+      {
+        value: [, "second"],
+        validity: validityFor(fullError),
+      };
     // Act
     const firstChildValue = extractArrayChild(parentValue, 0);
     // Assert
@@ -44,11 +46,11 @@ describe("extractArrayChild", () => {
 describe("recombineArrayChild", () => {
   it("Adjusts the child value for the given index within the parent value", () => {
     // Arrange
-    const parentValue: ValidatedValue<string[]> = {
+    const parentValue: ValidatedValue<string[], ValidationError> = {
       value: ["first", "second"],
       validity: validityFor(fullError),
     };
-    const childValue: ValidatedValue<string> = {
+    const childValue: ValidatedValue<string, ValidationError> = {
       value: "first?",
       validity: validityFor({
         variant: "field",
@@ -79,11 +81,12 @@ describe("recombineArrayChild", () => {
 
   it("Maintains empty cells within the parent array", () => {
     // Arrange
-    const parentValue: ValidatedValue<(string | undefined)[]> = {
-      value: [,],
-      validity: validityFor(fullError),
-    };
-    const childValue: ValidatedValue<string> = {
+    const parentValue: ValidatedValue<(string | undefined)[], ValidationError> =
+      {
+        value: [,],
+        validity: validityFor(fullError),
+      };
+    const childValue: ValidatedValue<string, ValidationError> = {
       value: "second",
       validity: validValidity,
     };
@@ -95,7 +98,7 @@ describe("recombineArrayChild", () => {
   });
 });
 
-const fullError: ArrayError = {
+const fullError: ArrayError<ValidationError> = {
   variant: "array",
   errors: [],
   innerErrors: [

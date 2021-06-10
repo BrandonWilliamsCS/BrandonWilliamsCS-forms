@@ -3,7 +3,7 @@ import {
   FormControlInterface,
   splitFormControl,
 } from "../control";
-import { ValidatedValue } from "../validation";
+import { ValidatedValue, ValidationError } from "../validation";
 
 import {
   extractArrayChild,
@@ -16,12 +16,12 @@ import {
  * component child interfaces.
  * @param arrayInterface A FormControlInterface representing a sequence
  */
-export function splitValidatedFormArray<T>(
-  arrayInterface: FormControlInterface<ValidatedValue<T[]>>,
-): FormArrayBundle<T> {
+export function splitValidatedFormArray<T, E extends ValidationError>(
+  arrayInterface: FormControlInterface<ValidatedValue<T[], E>>,
+): FormArrayBundle<T, E> {
   const compositeInterface = splitFormControl<
-    ValidatedValue<T[]>,
-    ValidatedArrayMap<T>
+    ValidatedValue<T[], E>,
+    ValidatedArrayMap<T, E>
   >(arrayInterface, extractArrayChild, recombineArrayChild);
   const interfaceArray =
     arrayInterface.value?.value.map((_, i) => compositeInterface(i)) ?? [];
@@ -31,7 +31,7 @@ export function splitValidatedFormArray<T>(
   };
 }
 
-export interface FormArrayBundle<T> {
-  compositeInterface: CompositeFormControlInterface<ValidatedArrayMap<T>>;
-  interfaceArray: FormControlInterface<ValidatedValue<T>>[];
+export interface FormArrayBundle<T, E extends ValidationError> {
+  compositeInterface: CompositeFormControlInterface<ValidatedArrayMap<T, E>>;
+  interfaceArray: FormControlInterface<ValidatedValue<T, E>>[];
 }

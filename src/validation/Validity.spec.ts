@@ -1,4 +1,5 @@
 import { FormControlError } from "./FormControlError";
+import { ValidationError } from "./ValidationError";
 import {
   validityError,
   validityFor,
@@ -10,7 +11,7 @@ import {
 describe("validityError", () => {
   it("returns undefined when validity is valid", () => {
     // Arrange
-    const validity: Validity = validValidity;
+    const validity: Validity<ValidationError> = validValidity;
     // Act
     const result = validityError(validity);
     // Assert
@@ -18,7 +19,7 @@ describe("validityError", () => {
   });
   it("returns the component error when validity is invalid", () => {
     // Arrange
-    const validity: Validity = {
+    const validity: Validity<ValidationError> = {
       isValid: false,
       error: miscError,
     };
@@ -32,7 +33,7 @@ describe("validityError", () => {
 describe("validityFor", () => {
   it("returns invalid validity that wraps the provided error", () => {
     // Arrange
-    const error: FormControlError | undefined = miscError;
+    const error: FormControlError<ValidationError> | undefined = miscError;
     // Act
     const result = validityFor(error);
     // Assert
@@ -43,7 +44,7 @@ describe("validityFor", () => {
   });
   it("returns valid validity when there is no error", () => {
     // Arrange
-    const error: FormControlError | undefined = undefined;
+    const error: FormControlError<ValidationError> | undefined = undefined;
     // Act
     const result = validityFor(error);
     // Assert
@@ -54,7 +55,7 @@ describe("validityFor", () => {
 describe("mapValidity", () => {
   it("returns invalid validity with error mapped from base error", () => {
     // Arrange
-    const baseValidity: Validity = {
+    const baseValidity: Validity<ValidationError> = {
       isValid: false,
       error: miscError,
     };
@@ -69,7 +70,7 @@ describe("mapValidity", () => {
   });
   it("returns valid validity when base validity has no error", () => {
     // Arrange
-    const baseValidity: Validity = validValidity;
+    const baseValidity: Validity<ValidationError> = validValidity;
     const errorMapper = () => miscError2;
     // Act
     const result = mapValidity(baseValidity, errorMapper);
@@ -78,7 +79,7 @@ describe("mapValidity", () => {
   });
   it("returns valid validity when base validity error maps to no error", () => {
     // Arrange
-    const baseValidity: Validity = {
+    const baseValidity: Validity<ValidationError> = {
       isValid: false,
       error: miscError,
     };
@@ -90,11 +91,11 @@ describe("mapValidity", () => {
   });
 });
 
-const miscError: FormControlError = {
+const miscError: FormControlError<ValidationError> = {
   variant: "field",
   errors: [{ type: "error" }],
 };
-const miscError2: FormControlError = {
+const miscError2: FormControlError<ValidationError> = {
   variant: "field",
   errors: [{ type: "error2" }],
 };

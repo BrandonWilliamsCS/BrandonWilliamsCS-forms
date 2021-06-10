@@ -1,5 +1,10 @@
 import { FormControlInterface } from "../control";
-import { GroupError, validityFor, ValidatedValue } from "../validation";
+import {
+  GroupError,
+  validityFor,
+  ValidatedValue,
+  ValidationError,
+} from "../validation";
 import { splitValidatedFormGroup } from "./splitValidatedFormGroup";
 
 describe("splitValidatedFormGroup", () => {
@@ -7,7 +12,7 @@ describe("splitValidatedFormGroup", () => {
     it("returns the child value for the given key within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<
-        ValidatedValue<Partial<Name>>
+        ValidatedValue<Partial<Name>, ValidationError>
       > = {
         value: {
           value: {
@@ -33,7 +38,7 @@ describe("splitValidatedFormGroup", () => {
     it("returns a default child value for an undefined parent value", () => {
       // Arrange
       const parentInterface: FormControlInterface<
-        ValidatedValue<Partial<Name>>
+        ValidatedValue<Partial<Name>, ValidationError>
       > = {
         value: undefined,
         onValueChange: jest.fn(),
@@ -47,7 +52,7 @@ describe("splitValidatedFormGroup", () => {
     it("returns a child onValueChange for the given key within the parent interface", () => {
       // Arrange
       const parentInterface: FormControlInterface<
-        ValidatedValue<Partial<Name>>
+        ValidatedValue<Partial<Name>, ValidationError>
       > = {
         value: {
           value: {
@@ -93,7 +98,7 @@ describe("splitValidatedFormGroup", () => {
     it("returns a child-only onValueChange for the given key when there is no parent value", () => {
       // Arrange
       const parentInterface: FormControlInterface<
-        ValidatedValue<Partial<Name>>
+        ValidatedValue<Partial<Name>, ValidationError>
       > = {
         value: undefined,
         onValueChange: jest.fn(),
@@ -133,7 +138,7 @@ interface Name {
   last: string;
 }
 
-const fullError: GroupError = {
+const fullError: GroupError<ValidationError> = {
   variant: "group",
   errors: [],
   innerErrors: {

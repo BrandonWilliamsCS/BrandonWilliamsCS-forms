@@ -8,19 +8,20 @@ import {
 } from "..";
 import { ValueExtractor, ValueRecombiner } from "../../control";
 import { ValidatedValue } from "../ValidatedValue";
+import { ValidationError } from "../ValidationError";
 
 /**
  * Expresses the relationship between an array value and its child values.
  */
-export type ValidatedArrayMap<T> = {
-  [key in number]: ValidatedValue<T>;
+export type ValidatedArrayMap<T, E extends ValidationError> = {
+  [key in number]: ValidatedValue<T, E>;
 };
 
 /**
  * A ValueExtractor function that pulls children from an array of form values by index.
  */
-export const extractArrayChild = <T>(
-  arrayValue: ValidatedValue<T[]> | undefined,
+export const extractArrayChild = <T, E extends ValidationError>(
+  arrayValue: ValidatedValue<T[], E> | undefined,
   index: number,
 ) =>
   arrayValue && index in arrayValue.value
@@ -30,19 +31,19 @@ export const extractArrayChild = <T>(
       }
     : undefined;
 /** Simply returns `extractArrayChild`, but provides a better generic type */
-export function getExtractArrayChild<T>(): ValueExtractor<
-  ValidatedValue<T[]>,
-  ValidatedArrayMap<T>
-> {
+export function getExtractArrayChild<
+  T,
+  E extends ValidationError,
+>(): ValueExtractor<ValidatedValue<T[], E>, ValidatedArrayMap<T, E>> {
   return extractArrayChild;
 }
 
 /**
  * A ValueRecombiner function that places a child value into the array value by index.
  */
-export const recombineArrayChild = <T>(
-  prevArrayValue: ValidatedValue<T[]> | undefined,
-  nextChildValue: ValidatedValue<T>,
+export const recombineArrayChild = <T, E extends ValidationError>(
+  prevArrayValue: ValidatedValue<T[], E> | undefined,
+  nextChildValue: ValidatedValue<T, E>,
   index: number,
 ) => {
   const nextArrayValue = prevArrayValue ? cloneArray(prevArrayValue.value) : [];
@@ -57,27 +58,27 @@ export const recombineArrayChild = <T>(
   };
 };
 /** Simply returns `recombineArrayChild`, but provides a better generic type */
-export function getRecombineArrayChild<T>(): ValueRecombiner<
-  ValidatedValue<T[]>,
-  ValidatedArrayMap<T>
-> {
+export function getRecombineArrayChild<
+  T,
+  E extends ValidationError,
+>(): ValueRecombiner<ValidatedValue<T[], E>, ValidatedArrayMap<T, E>> {
   return recombineArrayChild;
 }
 
-function extractArrayChildValidity<T>(
-  arrayValue: ValidatedValue<T[]>,
+function extractArrayChildValidity<T, E extends ValidationError>(
+  arrayValue: ValidatedValue<T[], E>,
   index: number,
-): Validity {
-  return mapValidity(arrayValue.validity, (arrayError: FormControlError) =>
+): Validity<E> {
+  return mapValidity(arrayValue.validity, (arrayError: FormControlError<E>) =>
     arrayError.variant === "array" ? arrayError.innerErrors[index] : undefined,
   );
 }
 
-function updateArrayValidity(
-  currentOuterValidity: Validity | undefined,
-  nextItemValidity: Validity,
+function updateArrayValidity<E extends ValidationError>(
+  currentOuterValidity: Validity<E> | undefined,
+  nextItemValidity: Validity<E>,
   index: number,
-): Validity {
+): Validity<E> {
   const currentOuterError =
     currentOuterValidity && validityError(currentOuterValidity);
   // In the buggy case that the validity doesn't fit an array, just ditch the error.

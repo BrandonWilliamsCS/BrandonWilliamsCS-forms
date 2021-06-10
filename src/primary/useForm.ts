@@ -6,6 +6,7 @@ import {
 
 import { useInterceptedFormBehavior } from "../form";
 import { combineInterceptors, Handler, HandlerInterceptor } from "../utility";
+import { ValidationError } from "../validation";
 import {
   interceptValidatedSubmit,
   ValidatedValue,
@@ -18,22 +19,22 @@ import {
  * @param secondarySubmitInterceptor optionally intercepts submit after validation
  * @param changeInterceptor optionally intercepts changes to the form value
  */
-export function useForm<TRaw, TFinal>(
+export function useForm<TRaw, TFinal, E extends ValidationError>(
   onSubmit: (value: TFinal) => Promise<void>,
   secondarySubmitInterceptor?: HandlerInterceptor<TFinal>,
-  changeInterceptor?: HandlerInterceptor<ValidatedValue<TRaw> | undefined>,
-): FormVitals<TRaw> {
+  changeInterceptor?: HandlerInterceptor<ValidatedValue<TRaw, E> | undefined>,
+): FormVitals<TRaw, E> {
   const [submitPromise, handleUltimateSubmit] = useDelayedState(onSubmit);
   const submitStatus = usePromiseStatus(submitPromise);
 
   const submitInterceptor: HandlerInterceptor<
-    ValidatedValue<TRaw> | undefined,
+    ValidatedValue<TRaw, E> | undefined,
     TFinal
   > = secondarySubmitInterceptor
     ? combineInterceptors(interceptValidatedSubmit, secondarySubmitInterceptor)
     : interceptValidatedSubmit;
   const { currentValue, changeValue, triggerSubmit } =
-    useInterceptedFormBehavior<ValidatedValue<TRaw> | undefined, TFinal>(
+    useInterceptedFormBehavior<ValidatedValue<TRaw, E> | undefined, TFinal>(
       handleUltimateSubmit,
       undefined,
       submitInterceptor,
@@ -48,9 +49,9 @@ export function useForm<TRaw, TFinal>(
   };
 }
 
-export interface FormVitals<TRaw> {
-  currentValue: ValidatedValue<TRaw> | undefined;
-  changeValue: Handler<ValidatedValue<TRaw>>;
+export interface FormVitals<TRaw, E extends ValidationError> {
+  currentValue: ValidatedValue<TRaw, E> | undefined;
+  changeValue: Handler<ValidatedValue<TRaw, E>>;
   triggerSubmit: () => void;
   submitStatus: PromiseStatus<void> | undefined;
 }

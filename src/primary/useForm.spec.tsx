@@ -1,7 +1,12 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { Handler } from "../utility";
-import { ValidatedValue, validityFor, validValidity } from "../validation";
+import {
+  ValidatedValue,
+  ValidationError,
+  validityFor,
+  validValidity,
+} from "../validation";
 import { useForm } from "./useForm";
 
 describe("useForm", () => {
@@ -58,8 +63,8 @@ describe("useForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       const secondarySubmitInterceptor = (
-        value: ValidatedValue<string>,
-        base: Handler<ValidatedValue<string>>,
+        value: ValidatedValue<string, ValidationError>,
+        base: Handler<ValidatedValue<string, ValidationError>>,
       ) => {
         base(value);
       };
@@ -114,8 +119,8 @@ describe("useForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       const secondarySubmitInterceptor = (
-        value: ValidatedValue<string>,
-        base: Handler<ValidatedValue<string>>,
+        value: ValidatedValue<string, ValidationError>,
+        base: Handler<ValidatedValue<string, ValidationError>>,
       ) => {};
       // Act
       const { result } = renderHook(() =>

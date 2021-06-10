@@ -9,6 +9,6 @@ import { ValidationError } from "./ValidationError";
  * the username - one that happens to be uncertain sometimes. It is suitable to
  * handle the asynchronicity as a value-side concern and validate synchronously.
  */
-export type Validator<T> = (
+export type Validator<T, E extends ValidationError> = (
   value: T | undefined,
-) => ValidationError[] | undefined;
+) => E[] | undefined;

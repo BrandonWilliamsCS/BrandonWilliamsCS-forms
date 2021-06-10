@@ -9,7 +9,7 @@ import { ValidationError } from "./ValidationError";
  * even while processing, a value is either known ot be valid or it isn't. Thus,
  * `Validity` does not attempt to cover asynchronicity.
  */
-export type Validity<E extends ValidationError = ValidationError> =
+export type Validity<E extends ValidationError> =
   | {
       readonly isValid: true;
     }
@@ -28,7 +28,7 @@ export const validValidity: Validity<never> = Object.freeze({
  * @param validity a possibly-invalid `Validity`
  * @returns the error, if invalid
  */
-export function validityError<E extends ValidationError = ValidationError>(
+export function validityError<E extends ValidationError>(
   validity: Validity<E>,
 ): FormControlError<E> | undefined {
   return validity.isValid ? undefined : validity.error;
@@ -39,7 +39,7 @@ export function validityError<E extends ValidationError = ValidationError>(
  * @param error the possible error to wrap a validity
  * @returns the appropriate validity.
  */
-export function validityFor<E extends ValidationError = ValidationError>(
+export function validityFor<E extends ValidationError>(
   error: FormControlError<E> | undefined,
 ): Validity<E> {
   return error
@@ -56,7 +56,7 @@ export function validityFor<E extends ValidationError = ValidationError>(
  * @param errorMapper the logic for translating component errors
  * @returns A new validity based on the mapped error
  */
-export function mapValidity<E extends ValidationError = ValidationError>(
+export function mapValidity<E extends ValidationError>(
   baseValidity: Validity<E>,
   errorMapper: (
     baseError: FormControlError<E>,

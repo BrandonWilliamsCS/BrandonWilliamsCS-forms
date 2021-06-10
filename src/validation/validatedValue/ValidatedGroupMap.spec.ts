@@ -1,10 +1,11 @@
 import { GroupError, validityFor, ValidatedValue } from "../../validation";
+import { ValidationError } from "../ValidationError";
 import { extractGroupChild, recombineGroupChild } from "./ValidatedGroupMap";
 
 describe("extractGroupChild", () => {
   it("returns the child value for the given key within the parent value", () => {
     // Arrange
-    const parentValue: ValidatedValue<Partial<Name>> = {
+    const parentValue: ValidatedValue<Partial<Name>, ValidationError> = {
       value: {
         first: "Firsty",
         last: "Lastson",
@@ -26,7 +27,7 @@ describe("extractGroupChild", () => {
     // Arrange
     const parentValue = undefined;
     // Act
-    const firstNameValue = extractGroupChild<Name, keyof Name>(
+    const firstNameValue = extractGroupChild<Name, keyof Name, ValidationError>(
       parentValue,
       "first",
     );
@@ -38,14 +39,14 @@ describe("extractGroupChild", () => {
 describe("recombineGroupChild", () => {
   it("Adjusts the child value for the given key within the parent value", () => {
     // Arrange
-    const parentValue: ValidatedValue<Partial<Name>> = {
+    const parentValue: ValidatedValue<Partial<Name>, ValidationError> = {
       value: {
         first: "Firsty",
         last: "Lastson",
       },
       validity: validityFor(fullError),
     };
-    const childValue: ValidatedValue<string> = {
+    const childValue: ValidatedValue<string, ValidationError> = {
       value: "Secondy",
       validity: validityFor({
         variant: "field",
@@ -83,7 +84,7 @@ describe("recombineGroupChild", () => {
   it("builds a parent value with only the given key when there is no prior parent value", () => {
     // Arrange
     const parentValue = undefined;
-    const childValue: ValidatedValue<string> = {
+    const childValue: ValidatedValue<string, ValidationError> = {
       value: "Firsty",
       validity: validityFor({
         variant: "field",
@@ -91,11 +92,11 @@ describe("recombineGroupChild", () => {
       }),
     };
     // Act
-    const nextParentValue = recombineGroupChild<Name, keyof Name>(
-      parentValue,
-      childValue,
-      "first",
-    );
+    const nextParentValue = recombineGroupChild<
+      Name,
+      keyof Name,
+      ValidationError
+    >(parentValue, childValue, "first");
     // Assert
     expect(nextParentValue).toMatchObject({
       value: {
@@ -120,7 +121,7 @@ interface Name {
   last: string;
 }
 
-const fullError: GroupError = {
+const fullError: GroupError<ValidationError> = {
   variant: "group",
   errors: [],
   innerErrors: {
