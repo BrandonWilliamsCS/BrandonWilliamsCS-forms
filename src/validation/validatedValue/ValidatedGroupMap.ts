@@ -13,7 +13,7 @@ import { ValidatedValue } from "../ValidatedValue";
  * Expresses the relationship between a group value and its child values (by key).
  */
 export type ValidatedGroupMap<T extends Record<string, any>, E> = {
-  [key in keyof T & string]: ValidatedValue<T[key], E>;
+  [key in keyof T & string]: ValidatedValue<Partial<T>[key], E>;
 };
 
 /**
@@ -29,9 +29,7 @@ export const extractGroupChild = <
 ) =>
   groupValue && key in groupValue.value
     ? {
-        // This is technically `Partial<T>`, but we just confirmed that at least
-        // this key is present and can is "enough of" a `T` for our needs.
-        value: (groupValue.value as T)[key],
+        value: (groupValue.value as Partial<T>)[key],
         validity: extractGroupChildValidity(groupValue, key),
       }
     : undefined;
@@ -52,7 +50,7 @@ export const recombineGroupChild = <
   E,
 >(
   prevGroupValue: ValidatedValue<Partial<T>, E> | undefined,
-  nextChildValue: ValidatedValue<T[K], E>,
+  nextChildValue: ValidatedValue<Partial<T>[K], E>,
   key: K,
 ) => ({
   value: {
@@ -74,7 +72,7 @@ export function getRecombineGroupChild<T, E>(): ValueRecombiner<
 }
 
 function extractGroupChildValidity<T, K extends keyof T & string, E>(
-  groupValue: ValidatedValue<T, E>,
+  groupValue: ValidatedValue<Partial<T>, E>,
   key: K,
 ): Validity<E> {
   return mapValidity(groupValue.validity, (groupError: FormControlError<E>) =>
