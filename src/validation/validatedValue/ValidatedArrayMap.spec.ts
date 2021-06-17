@@ -1,5 +1,6 @@
 import { ArrayError, validityFor, ValidatedValue } from "../../validation";
 import { ValidationError } from "../../primary/ValidationError";
+import { testFieldError } from "./testFieldError";
 import { validValidity } from "../Validity";
 import { extractArrayChild, recombineArrayChild } from "./ValidatedArrayMap";
 
@@ -15,10 +16,7 @@ describe("extractArrayChild", () => {
     // Assert
     expect(firstChildValue).toMatchObject({
       value: "first",
-      validity: validityFor({
-        variant: "field",
-        errors: [{ type: "First item is wrong" }],
-      }),
+      validity: validityFor(testFieldError("First item is wrong")),
     });
   });
   it("provides no child value for an undefined parent value", () => {
@@ -52,10 +50,7 @@ describe("recombineArrayChild", () => {
     };
     const childValue: ValidatedValue<string, ValidationError> = {
       value: "first?",
-      validity: validityFor({
-        variant: "field",
-        errors: [{ type: "First item is still wrong" }],
-      }),
+      validity: validityFor(testFieldError("First item is still wrong")),
     };
     // Act
     const nextParentValue = recombineArrayChild(parentValue, childValue, 0);
@@ -66,14 +61,8 @@ describe("recombineArrayChild", () => {
         variant: "array",
         errors: [],
         innerErrors: [
-          {
-            variant: "field",
-            errors: [{ type: "First item is still wrong" }],
-          },
-          {
-            variant: "field",
-            errors: [{ type: "Second item is wrong" }],
-          },
+          testFieldError("First item is still wrong"),
+          testFieldError("Second item is wrong"),
         ],
       }),
     });
@@ -102,13 +91,7 @@ const fullError: ArrayError<ValidationError> = {
   variant: "array",
   errors: [],
   innerErrors: [
-    {
-      variant: "field",
-      errors: [{ type: "First item is wrong" }],
-    },
-    {
-      variant: "field",
-      errors: [{ type: "Second item is wrong" }],
-    },
+    testFieldError("First item is wrong"),
+    testFieldError("Second item is wrong"),
   ],
 };

@@ -1,5 +1,6 @@
 import { GroupError, validityFor, ValidatedValue } from "../../validation";
 import { ValidationError } from "../../primary/ValidationError";
+import { testFieldError } from "./testFieldError";
 import { extractGroupChild, recombineGroupChild } from "./ValidatedGroupMap";
 
 describe("extractGroupChild", () => {
@@ -17,10 +18,7 @@ describe("extractGroupChild", () => {
     // Assert
     expect(firstNameValue).toMatchObject({
       value: "Firsty",
-      validity: validityFor({
-        variant: "field",
-        errors: [{ type: "First name is wrong" }],
-      }),
+      validity: validityFor(testFieldError("First name is wrong")),
     });
   });
   it("returns a default child value for an undefined parent value", () => {
@@ -48,10 +46,7 @@ describe("recombineGroupChild", () => {
     };
     const childValue: ValidatedValue<string, ValidationError> = {
       value: "Secondy",
-      validity: validityFor({
-        variant: "field",
-        errors: [{ type: "First name is still wrong" }],
-      }),
+      validity: validityFor(testFieldError("First name is still wrong")),
     };
     // Act
     const nextParentValue = recombineGroupChild(
@@ -69,14 +64,8 @@ describe("recombineGroupChild", () => {
         variant: "group",
         errors: [],
         innerErrors: {
-          first: {
-            variant: "field",
-            errors: [{ type: "First name is still wrong" }],
-          },
-          last: {
-            variant: "field",
-            errors: [{ type: "Last name is wrong" }],
-          },
+          first: testFieldError("First name is still wrong"),
+          last: testFieldError("Last name is wrong"),
         },
       }),
     });
@@ -86,10 +75,7 @@ describe("recombineGroupChild", () => {
     const parentValue = undefined;
     const childValue: ValidatedValue<string, ValidationError> = {
       value: "Firsty",
-      validity: validityFor({
-        variant: "field",
-        errors: [{ type: "First name is wrong" }],
-      }),
+      validity: validityFor(testFieldError("First name is wrong")),
     };
     // Act
     const nextParentValue = recombineGroupChild<
@@ -106,10 +92,7 @@ describe("recombineGroupChild", () => {
         variant: "group",
         errors: [],
         innerErrors: {
-          first: {
-            variant: "field",
-            errors: [{ type: "First name is wrong" }],
-          },
+          first: testFieldError("First name is wrong"),
         },
       }),
     });
@@ -125,13 +108,7 @@ const fullError: GroupError<ValidationError> = {
   variant: "group",
   errors: [],
   innerErrors: {
-    first: {
-      variant: "field",
-      errors: [{ type: "First name is wrong" }],
-    },
-    last: {
-      variant: "field",
-      errors: [{ type: "Last name is wrong" }],
-    },
+    first: testFieldError("First name is wrong"),
+    last: testFieldError("Last name is wrong"),
   },
 };

@@ -6,6 +6,7 @@ import {
   GroupError,
 } from "./FormControlError";
 import { ValidationError } from "../primary/ValidationError";
+import { testFieldError } from "./validatedValue/testFieldError";
 
 describe("addArrayedError", () => {
   it("returns undefined if current and next are non-errors", () => {
@@ -70,7 +71,7 @@ describe("addArrayedError", () => {
     // Arrange
     const currentArrayError: ArrayError<ValidationError> | undefined = {
       variant: "array",
-      errors: [{ type: "innerError" }],
+      errors: [{ type: "innerError", requiresConfirmation: false }],
       innerErrors: [],
     };
     const nextItemError: FormControlError<ValidationError> | undefined =
@@ -80,7 +81,7 @@ describe("addArrayedError", () => {
     // Assert
     expect(result).toMatchObject({
       variant: "array",
-      errors: [{ type: "innerError" }],
+      errors: [{ type: "innerError", requiresConfirmation: false }],
       innerErrors: [miscError],
     });
   });
@@ -156,7 +157,7 @@ describe("addGroupedError", () => {
     // Arrange
     const currentGroupError: GroupError<ValidationError> | undefined = {
       variant: "group",
-      errors: [{ type: "innerError" }],
+      errors: [{ type: "innerError", requiresConfirmation: false }],
       innerErrors: {},
     };
     const nextItemError: FormControlError<ValidationError> | undefined =
@@ -166,20 +167,14 @@ describe("addGroupedError", () => {
     // Assert
     expect(result).toMatchObject({
       variant: "group",
-      errors: [{ type: "innerError" }],
+      errors: [{ type: "innerError", requiresConfirmation: false }],
       innerErrors: { item: miscError },
     });
   });
 });
 
-const miscError: FormControlError<ValidationError> = {
-  variant: "field",
-  errors: [{ type: "error" }],
-};
-const miscError2: FormControlError<ValidationError> = {
-  variant: "field",
-  errors: [{ type: "error2" }],
-};
+const miscError = testFieldError("error");
+const miscError2 = testFieldError("error2");
 
 function arrayFor(
   innerErrors: Array<FormControlError<ValidationError> | undefined>,

@@ -29,7 +29,7 @@ describe("interceptValidatedSubmit", () => {
       },
       validity: validityFor({
         variant: "group",
-        errors: [{ type: "TEST_ERROR" }],
+        errors: [{ type: "TEST_ERROR", requiresConfirmation: false }],
         innerErrors: {},
       }),
     };

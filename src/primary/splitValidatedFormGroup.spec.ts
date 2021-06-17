@@ -1,5 +1,6 @@
 import { FormControlInterface } from "../control";
 import { GroupError, validityFor, ValidatedValue } from "../validation";
+import { testFieldError } from "../validation/validatedValue/testFieldError";
 import { splitValidatedFormGroup } from "./splitValidatedFormGroup";
 import { ValidationError } from "./ValidationError";
 
@@ -25,10 +26,7 @@ describe("splitValidatedFormGroup", () => {
       // Assert
       expect(firstNameInterface.value).toMatchObject({
         value: "Firsty",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "First name is wrong" }],
-        }),
+        validity: validityFor(testFieldError("First name is wrong")),
       });
     });
     it("returns a default child value for an undefined parent value", () => {
@@ -64,10 +62,7 @@ describe("splitValidatedFormGroup", () => {
       const firstNameInterface = compositeInterface("first");
       firstNameInterface.onValueChange({
         value: "Secondy",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "First name is still wrong" }],
-        }),
+        validity: validityFor(testFieldError("First name is still wrong")),
       });
       // Assert
       expect(parentInterface.onValueChange).toHaveBeenCalledWith({
@@ -79,14 +74,8 @@ describe("splitValidatedFormGroup", () => {
           variant: "group",
           errors: [],
           innerErrors: {
-            first: {
-              variant: "field",
-              errors: [{ type: "First name is still wrong" }],
-            },
-            last: {
-              variant: "field",
-              errors: [{ type: "Last name is wrong" }],
-            },
+            first: testFieldError("First name is still wrong"),
+            last: testFieldError("Last name is wrong"),
           },
         }),
       });
@@ -104,10 +93,7 @@ describe("splitValidatedFormGroup", () => {
       const firstNameInterface = compositeInterface("first");
       firstNameInterface.onValueChange({
         value: "Secondy",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "First name is wrong" }],
-        }),
+        validity: validityFor(testFieldError("First name is wrong")),
       });
       // Assert
       expect(parentInterface.onValueChange).toHaveBeenCalledWith({
@@ -118,10 +104,7 @@ describe("splitValidatedFormGroup", () => {
           variant: "group",
           errors: [],
           innerErrors: {
-            first: {
-              variant: "field",
-              errors: [{ type: "First name is wrong" }],
-            },
+            first: testFieldError("First name is wrong"),
           },
         }),
       });
@@ -138,13 +121,7 @@ const fullError: GroupError<ValidationError> = {
   variant: "group",
   errors: [],
   innerErrors: {
-    first: {
-      variant: "field",
-      errors: [{ type: "First name is wrong" }],
-    },
-    last: {
-      variant: "field",
-      errors: [{ type: "Last name is wrong" }],
-    },
+    first: testFieldError("First name is wrong"),
+    last: testFieldError("Last name is wrong"),
   },
 };

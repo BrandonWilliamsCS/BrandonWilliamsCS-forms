@@ -7,6 +7,7 @@ import {
   validValidity,
   Validity,
 } from "./Validity";
+import { testFieldError } from "./validatedValue/testFieldError";
 
 describe("validityError", () => {
   it("returns undefined when validity is valid", () => {
@@ -91,11 +92,5 @@ describe("mapValidity", () => {
   });
 });
 
-const miscError: FormControlError<ValidationError> = {
-  variant: "field",
-  errors: [{ type: "error" }],
-};
-const miscError2: FormControlError<ValidationError> = {
-  variant: "field",
-  errors: [{ type: "error2" }],
-};
+const miscError = testFieldError("error");
+const miscError2 = testFieldError("error2");

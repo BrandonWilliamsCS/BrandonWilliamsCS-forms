@@ -5,6 +5,7 @@ import {
   ValidatedValue,
   validValidity,
 } from "../validation";
+import { testFieldError } from "../validation/validatedValue/testFieldError";
 import { splitValidatedFormArray } from "./splitValidatedFormArray";
 import { ValidationError } from "./ValidationError";
 
@@ -27,10 +28,7 @@ describe("splitValidatedFormArray", () => {
       // Assert
       expect(firstNameInterface.value).toMatchObject({
         value: "first",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "First item is wrong" }],
-        }),
+        validity: validityFor(testFieldError("First item is wrong")),
       });
     });
     it("provides no child interfaces for an undefined parent value", () => {
@@ -62,10 +60,7 @@ describe("splitValidatedFormArray", () => {
       const firstNameInterface = interfaceArray[0];
       firstNameInterface.onValueChange({
         value: "first?",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "First item is still wrong" }],
-        }),
+        validity: validityFor(testFieldError("First item is still wrong")),
       });
       // Assert
       expect(parentInterface.onValueChange).toHaveBeenCalledWith({
@@ -74,14 +69,8 @@ describe("splitValidatedFormArray", () => {
           variant: "array",
           errors: [],
           innerErrors: [
-            {
-              variant: "field",
-              errors: [{ type: "First item is still wrong" }],
-            },
-            {
-              variant: "field",
-              errors: [{ type: "Second item is wrong" }],
-            },
+            testFieldError("First item is still wrong"),
+            testFieldError("Second item is wrong"),
           ],
         }),
       });
@@ -105,10 +94,7 @@ describe("splitValidatedFormArray", () => {
       // Assert
       expect(firstNameInterface.value).toMatchObject({
         value: "first",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "First item is wrong" }],
-        }),
+        validity: validityFor(testFieldError("First item is wrong")),
       });
     });
     it("returns a default child value for an undefined parent value", () => {
@@ -158,10 +144,7 @@ describe("splitValidatedFormArray", () => {
       const firstNameInterface = compositeInterface(0);
       firstNameInterface.onValueChange({
         value: "first?",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "First item is still wrong" }],
-        }),
+        validity: validityFor(testFieldError("First item is still wrong")),
       });
       // Assert
       expect(parentInterface.onValueChange).toHaveBeenCalledWith({
@@ -170,14 +153,8 @@ describe("splitValidatedFormArray", () => {
           variant: "array",
           errors: [],
           innerErrors: [
-            {
-              variant: "field",
-              errors: [{ type: "First item is still wrong" }],
-            },
-            {
-              variant: "field",
-              errors: [{ type: "Second item is wrong" }],
-            },
+            testFieldError("First item is still wrong"),
+            testFieldError("Second item is wrong"),
           ],
         }),
       });
@@ -195,10 +172,7 @@ describe("splitValidatedFormArray", () => {
       const secondNameInterface = compositeInterface(1);
       secondNameInterface.onValueChange({
         value: "second",
-        validity: validityFor({
-          variant: "field",
-          errors: [{ type: "Second item is wrong" }],
-        }),
+        validity: validityFor(testFieldError("Second item is wrong")),
       });
       // Assert
       expect(parentInterface.onValueChange).toHaveBeenCalledWith({
@@ -206,13 +180,7 @@ describe("splitValidatedFormArray", () => {
         validity: validityFor({
           variant: "array",
           errors: [],
-          innerErrors: [
-            ,
-            {
-              variant: "field",
-              errors: [{ type: "Second item is wrong" }],
-            },
-          ],
+          innerErrors: [, testFieldError("Second item is wrong")],
         }),
       });
     });
@@ -242,13 +210,7 @@ const fullError: ArrayError<ValidationError> = {
   variant: "array",
   errors: [],
   innerErrors: [
-    {
-      variant: "field",
-      errors: [{ type: "First item is wrong" }],
-    },
-    {
-      variant: "field",
-      errors: [{ type: "Second item is wrong" }],
-    },
+    testFieldError("First item is wrong"),
+    testFieldError("Second item is wrong"),
   ],
 };

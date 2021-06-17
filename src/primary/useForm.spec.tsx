@@ -2,6 +2,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { Handler } from "../utility";
 import { ValidatedValue, validityFor, validValidity } from "../validation";
+import { testFieldError } from "../validation/validatedValue/testFieldError";
 import { useForm } from "./useForm";
 import { ValidationError } from "./ValidationError";
 
@@ -98,10 +99,7 @@ describe("useForm", () => {
         const { changeValue } = result.current;
         changeValue({
           value: "different value",
-          validity: validityFor({
-            variant: "field",
-            errors: [{ type: "test-error" }],
-          }),
+          validity: validityFor(testFieldError("test-error")),
         });
       });
       act(() => {
