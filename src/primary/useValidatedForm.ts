@@ -1,3 +1,4 @@
+import React from "react";
 import {
   PromiseStatus,
   useDelayedState,
@@ -5,42 +6,40 @@ import {
 } from "@blueharborsolutions/react-data-tools";
 
 import { useInterceptedFormBehavior } from "../form";
-import { combineInterceptors, Handler, HandlerInterceptor } from "../utility";
+import {
+  buildListenerInterceptor,
+  combineInterceptors,
+  Handler,
+  HandlerInterceptor,
+} from "../utility";
 import {
   interceptValidatedSubmit,
   ValidatedValue,
 } from "../validation/validatedValue/index";
 
 /**
- * Encapsulates several behaviors that enhance basic form behavior.
+ * Encapsulates validation checking and status around basic form behavior.
  * @param onSubmit What to do with the form's value when ultimately submitted
- * @param initialValue (deprecated)
- * @param secondarySubmitInterceptor optionally intercepts submit after validation
- * @param changeInterceptor optionally intercepts changes to the form value
  */
-export function useForm<TRaw, TFinal, E>(
+export function useValidatedForm<TRaw, TFinal, E>(
   onSubmit: (value: TFinal) => Promise<void>,
-  secondarySubmitInterceptor?: HandlerInterceptor<TFinal>,
-  changeInterceptor?: HandlerInterceptor<ValidatedValue<TRaw, E> | undefined>,
 ): FormVitals<TRaw, E> {
+  const [submitAttempted, setSubmitAttempted] = React.useState(false);
   const [submitPromise, handleUltimateSubmit] = useDelayedState(onSubmit);
   const submitStatus = usePromiseStatus(submitPromise);
 
-  const submitInterceptor: HandlerInterceptor<
-    ValidatedValue<TRaw, E> | undefined,
-    TFinal
-  > = secondarySubmitInterceptor
-    ? combineInterceptors(interceptValidatedSubmit, secondarySubmitInterceptor)
-    : interceptValidatedSubmit;
+  const submitInterceptor = buildSubmitInterceptor<TRaw, TFinal, E>(() => {
+    setSubmitAttempted(true);
+  });
   const { currentValue, changeValue, triggerSubmit } =
     useInterceptedFormBehavior<ValidatedValue<TRaw, E> | undefined, TFinal>(
       handleUltimateSubmit,
       undefined,
       submitInterceptor,
-      changeInterceptor,
     );
 
   return {
+    submitAttempted,
     currentValue,
     changeValue,
     triggerSubmit,
@@ -53,4 +52,15 @@ export interface FormVitals<TRaw, E> {
   changeValue: Handler<ValidatedValue<TRaw, E>>;
   triggerSubmit: () => void;
   submitStatus: PromiseStatus<void> | undefined;
+  submitAttempted: boolean;
+}
+
+function buildSubmitInterceptor<TRaw, TFinal, E>(
+  onSubmitAttempt: Handler<ValidatedValue<TRaw, E> | undefined>,
+): HandlerInterceptor<ValidatedValue<TRaw, E> | undefined, TFinal> {
+  const attemptListnerInterceptor = buildListenerInterceptor(onSubmitAttempt);
+  return combineInterceptors(
+    attemptListnerInterceptor,
+    interceptValidatedSubmit,
+  );
 }

@@ -3,16 +3,16 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { Handler } from "../utility";
 import { ValidatedValue, validityFor, validValidity } from "../validation";
 import { testFieldError } from "../validation/validatedValue/testFieldError";
-import { useForm } from "./useForm";
+import { useValidatedForm } from "./useValidatedForm";
 import { ValidationError } from "./ValidationError";
 
-describe("useForm", () => {
+describe("useValidatedForm", () => {
   describe("currentValue", () => {
     it("is initially undefined", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit));
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       // Assert
       const { currentValue } = result.current;
       expect(currentValue).toBeUndefined();
@@ -23,7 +23,7 @@ describe("useForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit));
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -35,40 +35,13 @@ describe("useForm", () => {
       const { currentValue } = result.current;
       expect(currentValue).toMatchObject({ value: "different value" });
     });
-    it("doesn't update the current value if the interceptor ignores", async () => {
-      // Arrange
-      const handleSubmit = jest.fn().mockResolvedValue(undefined);
-      const changeInterceptor = () => {};
-      // Act
-      const { result } = renderHook(() =>
-        useForm(handleSubmit, undefined, changeInterceptor),
-      );
-      act(() => {
-        const { changeValue } = result.current;
-        changeValue({
-          value: "different value",
-          validity: validValidity,
-        });
-      });
-      // Assert
-      const { currentValue } = result.current;
-      expect(currentValue).toBeUndefined();
-    });
   });
   describe("triggerSubmit", () => {
-    it("calls onSubmit with the current value when the interceptor continues", async () => {
+    it("calls onSubmit with the current value when valid", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      const secondarySubmitInterceptor = (
-        value: ValidatedValue<string, ValidationError>,
-        base: Handler<ValidatedValue<string, ValidationError>>,
-      ) => {
-        base(value);
-      };
       // Act
-      const { result } = renderHook(() =>
-        useForm(handleSubmit, secondarySubmitInterceptor),
-      );
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -87,14 +60,7 @@ describe("useForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit));
-      act(() => {
-        const { changeValue } = result.current;
-        changeValue({
-          value: "different value",
-          validity: validValidity,
-        });
-      });
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -109,22 +75,16 @@ describe("useForm", () => {
       // Assert
       expect(handleSubmit).not.toHaveBeenCalled();
     });
-    it("doesn't call onSubmit when the secondary interceptor ignores", async () => {
+    it("records submit attempt even when submit intercepted", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      const secondarySubmitInterceptor = (
-        value: ValidatedValue<string, ValidationError>,
-        base: Handler<ValidatedValue<string, ValidationError>>,
-      ) => {};
       // Act
-      const { result } = renderHook(() =>
-        useForm(handleSubmit, secondarySubmitInterceptor),
-      );
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
           value: "different value",
-          validity: validValidity,
+          validity: validityFor(testFieldError("test-error")),
         });
       });
       act(() => {
@@ -132,7 +92,8 @@ describe("useForm", () => {
         triggerSubmit();
       });
       // Assert
-      expect(handleSubmit).not.toHaveBeenCalled();
+      const { submitAttempted } = result.current;
+      expect(submitAttempted).toBe(true);
     });
   });
   describe("submitStatus", () => {
@@ -140,7 +101,7 @@ describe("useForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit));
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       // Assert
       const { submitStatus } = result.current;
       expect(submitStatus).toBeUndefined();
@@ -149,7 +110,7 @@ describe("useForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit));
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -170,7 +131,7 @@ describe("useForm", () => {
       const { promise } = makePromise<void>();
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit));
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -191,7 +152,7 @@ describe("useForm", () => {
       const { promise, resolve } = makePromise<void>();
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
-      const { result } = renderHook(() => useForm(handleSubmit));
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -210,6 +171,17 @@ describe("useForm", () => {
       // Assert
       const { submitStatus } = result.current;
       expect(submitStatus?.isPending).toBe(false);
+    });
+  });
+  describe("submitAttempted", () => {
+    it("is initially undefined", async () => {
+      // Arrange
+      const handleSubmit = jest.fn().mockResolvedValue(undefined);
+      // Act
+      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      // Assert
+      const { submitAttempted } = result.current;
+      expect(submitAttempted).toBe(false);
     });
   });
 });
