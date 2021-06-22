@@ -1,4 +1,4 @@
-import { Mapper } from "../utility/Mapper";
+import { HandlerInterceptor, interceptHandler, Mapper } from "../utility";
 import { FormControlInterface } from "./FormControlInterface";
 
 /**
@@ -7,20 +7,22 @@ import { FormControlInterface } from "./FormControlInterface";
  * @remarks
  * This is useful when an underlying component (e.g., a text field) has one
  * type but its consumer requires another (e.g., a date or other parsed value).
+ * It also enables "filtering" of values through interception.
  *
  * @param sourceInterface - A base FormControl that will be split.
  * @param mapValue - Logic for translating a value from source to target.
- * @param remapValue - Logic for translating a value back from target to source.
+ * @param changeInterceptor - Logic for translating changes back from target to source.
  */
 export function translateFormControl<S, T>(
   sourceInterface: FormControlInterface<S>,
   mapValue: Mapper<S | undefined, T | undefined>,
-  remapValue: Mapper<T, S>,
+  changeInterceptor: HandlerInterceptor<T, S>,
 ): FormControlInterface<T> {
   return {
     value: mapValue(sourceInterface.value),
-    onValueChange: (nextValue: T) => {
-      sourceInterface.onValueChange(remapValue(nextValue));
-    },
+    onValueChange: interceptHandler(
+      sourceInterface.onValueChange,
+      changeInterceptor,
+    ),
   };
 }
