@@ -1,8 +1,8 @@
 import { Handler } from "../utility/Handler";
 
 /** Defines the elements necessary for utilizing the bahvior of a form. */
-export interface FormBehaviorHandle<T> {
+export interface FormBehaviorHandle<T, TSubmit> {
   currentValue: T;
   changeValue: Handler<T>;
-  triggerSubmit: () => void;
+  triggerSubmit: (submitValue: TSubmit) => void;
 }

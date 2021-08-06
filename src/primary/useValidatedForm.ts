@@ -5,39 +5,47 @@ import {
   usePromiseStatus,
 } from "@blueharborsolutions/react-data-tools";
 
-import { useInterceptedFormBehavior } from "../form";
-import {
-  buildListenerInterceptor,
-  combineInterceptors,
-  Handler,
-  HandlerInterceptor,
-} from "../utility";
-import {
-  interceptValidatedSubmit,
-  ValidatedValue,
-} from "../validation/validatedValue/index";
+import { useFormBehavior } from "../form";
+import { Handler } from "../utility";
+import { ValidatedValue } from "../validation/validatedValue/index";
+import { FormSubmission } from "../form/FormSubmission";
 
 /**
  * Encapsulates validation checking and status around basic form behavior.
  * @param onSubmit What to do with the form's value when ultimately submitted
  */
-export function useValidatedForm<TRaw, TFinal, E>(
-  onSubmit: (value: TFinal) => Promise<void>,
-): FormVitals<TRaw, E> {
+export function useValidatedForm<TRaw, TFinal, E, TSubmit = void>(
+  onSubmit: (value: TFinal, submitValue: TSubmit) => Promise<void>,
+): FormVitals<TRaw, E, TSubmit> {
   const [submitAttempted, setSubmitAttempted] = React.useState(false);
-  const [submitPromise, handleUltimateSubmit] = useDelayedState(onSubmit);
-  const submitStatus = usePromiseStatus(submitPromise);
+  const [submitPromise, handleUltimateSubmit] = useDelayedState(
+    (submission: FormSubmission<TFinal, TSubmit>) =>
+      onSubmit(submission.value, submission.submitValue),
+  );
 
-  const submitInterceptor = buildSubmitInterceptor<TRaw, TFinal, E>(() => {
+  // TODO: could afford to extract this.
+  const handleSubmitAttempt: Handler<
+    FormSubmission<ValidatedValue<TRaw, E> | undefined, TSubmit>
+  > = (submission) => {
+    // Even if validation fails, record the attempt.
+    // TODO: extra responsibility. Could be done by caller?
     setSubmitAttempted(true);
-  });
-  const { currentValue, changeValue, triggerSubmit } =
-    useInterceptedFormBehavior<ValidatedValue<TRaw, E> | undefined, TFinal>(
-      handleUltimateSubmit,
-      undefined,
-      submitInterceptor,
-    );
+    if (submission.value?.validity.isValid) {
+      // Trust that `isValid` implies the value is really TFinal.
+      return handleUltimateSubmit({
+        value: submission.value.value as unknown as TFinal,
+        submitValue: submission.submitValue,
+      });
+    }
+  };
+  const { currentValue, changeValue, triggerSubmit } = useFormBehavior<
+    ValidatedValue<TRaw, E> | undefined,
+    TSubmit
+  >(handleSubmitAttempt, undefined);
 
+  // Usage will almost always involve a status indicator, so save consumers the
+  // hassle by giving them a status instead of just a promise.
+  const submitStatus = usePromiseStatus(submitPromise);
   return {
     submitAttempted,
     currentValue,
@@ -47,20 +55,10 @@ export function useValidatedForm<TRaw, TFinal, E>(
   };
 }
 
-export interface FormVitals<TRaw, E> {
+export interface FormVitals<TRaw, E, TSubmit> {
   currentValue: ValidatedValue<TRaw, E> | undefined;
   changeValue: Handler<ValidatedValue<TRaw, E>>;
-  triggerSubmit: () => void;
+  triggerSubmit: (submitValue: TSubmit) => void;
   submitStatus: PromiseStatus<void> | undefined;
   submitAttempted: boolean;
-}
-
-function buildSubmitInterceptor<TRaw, TFinal, E>(
-  onSubmitAttempt: Handler<ValidatedValue<TRaw, E> | undefined>,
-): HandlerInterceptor<ValidatedValue<TRaw, E> | undefined, TFinal> {
-  const attemptListnerInterceptor = buildListenerInterceptor(onSubmitAttempt);
-  return combineInterceptors(
-    attemptListnerInterceptor,
-    interceptValidatedSubmit,
-  );
 }

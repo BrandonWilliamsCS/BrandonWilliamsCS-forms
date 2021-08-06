@@ -12,7 +12,9 @@ describe("useValidatedForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError>(handleSubmit),
+      );
       // Assert
       const { currentValue } = result.current;
       expect(currentValue).toBeUndefined();
@@ -23,7 +25,9 @@ describe("useValidatedForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError>(handleSubmit),
+      );
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -37,11 +41,13 @@ describe("useValidatedForm", () => {
     });
   });
   describe("triggerSubmit", () => {
-    it("calls onSubmit with the current value when valid", async () => {
+    it("calls onSubmit with the current and submit values when valid", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError, string>(handleSubmit),
+      );
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -51,16 +57,21 @@ describe("useValidatedForm", () => {
       });
       act(() => {
         const { triggerSubmit } = result.current;
-        triggerSubmit();
+        triggerSubmit("SaveAndContinue");
       });
       // Assert
-      expect(handleSubmit).toHaveBeenCalled();
+      expect(handleSubmit).toHaveBeenCalledWith(
+        "different value",
+        "SaveAndContinue",
+      );
     });
     it("doesn't call onSubmit when the value is invalid", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError, string>(handleSubmit),
+      );
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -70,7 +81,7 @@ describe("useValidatedForm", () => {
       });
       act(() => {
         const { triggerSubmit } = result.current;
-        triggerSubmit();
+        triggerSubmit("SaveAndContinue");
       });
       // Assert
       expect(handleSubmit).not.toHaveBeenCalled();
@@ -79,7 +90,9 @@ describe("useValidatedForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError, string>(handleSubmit),
+      );
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -89,7 +102,7 @@ describe("useValidatedForm", () => {
       });
       act(() => {
         const { triggerSubmit } = result.current;
-        triggerSubmit();
+        triggerSubmit("SaveAndContinue");
       });
       // Assert
       const { submitAttempted } = result.current;
@@ -101,7 +114,9 @@ describe("useValidatedForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError>(handleSubmit),
+      );
       // Assert
       const { submitStatus } = result.current;
       expect(submitStatus).toBeUndefined();
@@ -110,7 +125,9 @@ describe("useValidatedForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError>(handleSubmit),
+      );
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -131,7 +148,9 @@ describe("useValidatedForm", () => {
       const { promise } = makePromise<void>();
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError>(handleSubmit),
+      );
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -152,7 +171,9 @@ describe("useValidatedForm", () => {
       const { promise, resolve } = makePromise<void>();
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError>(handleSubmit),
+      );
       act(() => {
         const { changeValue } = result.current;
         changeValue({
@@ -178,7 +199,9 @@ describe("useValidatedForm", () => {
       // Arrange
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
-      const { result } = renderHook(() => useValidatedForm(handleSubmit));
+      const { result } = renderHook(() =>
+        useValidatedForm<string, string, ValidationError>(handleSubmit),
+      );
       // Assert
       const { submitAttempted } = result.current;
       expect(submitAttempted).toBe(false);

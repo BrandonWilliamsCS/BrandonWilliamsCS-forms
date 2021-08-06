@@ -31,13 +31,13 @@ describe("useFormBehavior", () => {
     const { currentValue } = result.current;
     expect(currentValue).toBe(1);
   });
-  it("submits the current value when the submit function is called", () => {
+  it("submits the current and submit values when the submit function is called", () => {
     // Arrange
     const handleSubmit = jest.fn();
     const initialValue: number = 0;
     // Act
     const { result } = renderHook(() =>
-      useFormBehavior(handleSubmit, initialValue),
+      useFormBehavior<number, string>(handleSubmit, initialValue),
     );
     act(() => {
       const { changeValue } = result.current;
@@ -45,10 +45,13 @@ describe("useFormBehavior", () => {
     });
     act(() => {
       const { triggerSubmit } = result.current;
-      triggerSubmit();
+      triggerSubmit("SaveAndContinue");
     });
 
     // Assert
-    expect(handleSubmit).toHaveBeenCalledWith(1);
+    expect(handleSubmit).toHaveBeenCalledWith({
+      value: 1,
+      submitValue: "SaveAndContinue",
+    });
   });
 });
