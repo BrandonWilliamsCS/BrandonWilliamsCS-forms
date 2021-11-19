@@ -12,7 +12,7 @@
     "build": "tsc",
     "link": "copy package.json dist\\package.json && cd dist && npm link",
     "test": "jest --watch",
-    "link-deps": "npm link @blueharborsolutions/react-data-tools ..\\react-data-tools\\node_modules\\react"
+    "link-deps": "npm link @blueharborsolutions/data-tools @blueharborsolutions/react-data-tools ..\\react-data-tools\\node_modules\\react"
   },
   "author": "Brandon Williams <brandon.williams@blueharborsolutions.com>",
   "license": "UNLICENSED",

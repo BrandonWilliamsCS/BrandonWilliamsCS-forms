@@ -1,6 +1,6 @@
 import React from "react";
+import { PromiseStatus } from "@blueharborsolutions/data-tools/promise";
 import {
-  PromiseStatus,
   useDelayedState,
   usePromiseStatus,
 } from "@blueharborsolutions/react-data-tools";
