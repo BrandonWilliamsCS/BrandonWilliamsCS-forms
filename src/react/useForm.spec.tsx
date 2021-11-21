@@ -1,56 +1,21 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { Handler } from "../utility";
-import { ValidatedValue, validityFor, validValidity } from "../validation";
-import { testFieldError } from "../validation/validatedValue/testFieldError";
-import { useValidatedForm } from "./useValidatedForm";
-import { ValidationError } from "./ValidationError";
+import { ValidationError } from "../validation/ValidationError";
+import { FieldError, validityFor, validValidity } from "../value";
+import { useForm } from "./useForm";
 
-describe("useValidatedForm", () => {
-  describe("currentValue", () => {
-    it("is initially undefined", async () => {
-      // Arrange
-      const handleSubmit = jest.fn().mockResolvedValue(undefined);
-      // Act
-      const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError>(handleSubmit),
-      );
-      // Assert
-      const { currentValue } = result.current;
-      expect(currentValue).toBeUndefined();
-    });
-  });
-  describe("changeValue", () => {
-    it("updates the current value when called", async () => {
-      // Arrange
-      const handleSubmit = jest.fn().mockResolvedValue(undefined);
-      // Act
-      const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError>(handleSubmit),
-      );
-      act(() => {
-        const { changeValue } = result.current;
-        changeValue({
-          value: "different value",
-          validity: validValidity,
-        });
-      });
-      // Assert
-      const { currentValue } = result.current;
-      expect(currentValue).toMatchObject({ value: "different value" });
-    });
-  });
+describe("useForm", () => {
   describe("triggerSubmit", () => {
     it("calls onSubmit with the current and submit values when valid", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError, string>(handleSubmit),
+        useForm<string, ValidationError, string>(handleSubmit),
       );
       act(() => {
-        const { changeValue } = result.current;
-        changeValue({
+        const { controlInterface } = result.current;
+        controlInterface.onValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -70,11 +35,11 @@ describe("useValidatedForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError, string>(handleSubmit),
+        useForm<string, ValidationError, string>(handleSubmit),
       );
       act(() => {
-        const { changeValue } = result.current;
-        changeValue({
+        const { controlInterface } = result.current;
+        controlInterface.onValueChange({
           value: "different value",
           validity: validityFor(testFieldError("test-error")),
         });
@@ -91,11 +56,11 @@ describe("useValidatedForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError, string>(handleSubmit),
+        useForm<string, ValidationError, string>(handleSubmit),
       );
       act(() => {
-        const { changeValue } = result.current;
-        changeValue({
+        const { controlInterface } = result.current;
+        controlInterface.onValueChange({
           value: "different value",
           validity: validityFor(testFieldError("test-error")),
         });
@@ -115,7 +80,7 @@ describe("useValidatedForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, ValidationError>(handleSubmit),
       );
       // Assert
       const { submitStatus } = result.current;
@@ -126,11 +91,11 @@ describe("useValidatedForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, ValidationError>(handleSubmit),
       );
       act(() => {
-        const { changeValue } = result.current;
-        changeValue({
+        const { controlInterface } = result.current;
+        controlInterface.onValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -149,11 +114,11 @@ describe("useValidatedForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, ValidationError>(handleSubmit),
       );
       act(() => {
-        const { changeValue } = result.current;
-        changeValue({
+        const { controlInterface } = result.current;
+        controlInterface.onValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -172,11 +137,11 @@ describe("useValidatedForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, ValidationError>(handleSubmit),
       );
       act(() => {
-        const { changeValue } = result.current;
-        changeValue({
+        const { controlInterface } = result.current;
+        controlInterface.onValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -200,7 +165,7 @@ describe("useValidatedForm", () => {
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
       const { result } = renderHook(() =>
-        useValidatedForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, ValidationError>(handleSubmit),
       );
       // Assert
       const { submitAttempted } = result.current;
@@ -217,4 +182,11 @@ function makePromise<T, E = any>() {
     reject = _reject;
   });
   return { promise, resolve, reject };
+}
+
+function testFieldError(type: string): FieldError<ValidationError> {
+  return {
+    variant: "field",
+    errors: [{ type, requiresConfirmation: false }],
+  };
 }

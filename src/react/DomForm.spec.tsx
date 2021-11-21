@@ -1,8 +1,7 @@
 import React from "react";
 import { createEvent, fireEvent, render, screen } from "@testing-library/react";
-
-import { DomForm } from "./DomForm";
 import { act } from "@testing-library/react-hooks";
+import { DomForm } from "./DomForm";
 
 describe("DomForm", () => {
   it("forwards its ref to the base form element", () => {

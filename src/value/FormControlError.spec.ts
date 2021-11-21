@@ -1,12 +1,12 @@
+import { ValidationError } from "../validation/ValidationError";
 import {
   addArrayedError,
   addGroupedError,
-  FormControlError,
   ArrayError,
+  FieldError,
+  FormControlError,
   GroupError,
 } from "./FormControlError";
-import { ValidationError } from "../primary/ValidationError";
-import { testFieldError } from "./validatedValue/testFieldError";
 
 describe("addArrayedError", () => {
   it("returns undefined if current and next are non-errors", () => {
@@ -172,6 +172,13 @@ describe("addGroupedError", () => {
     });
   });
 });
+
+export function testFieldError(type: string): FieldError<ValidationError> {
+  return {
+    variant: "field",
+    errors: [{ type, requiresConfirmation: false }],
+  };
+}
 
 const miscError = testFieldError("error");
 const miscError2 = testFieldError("error2");

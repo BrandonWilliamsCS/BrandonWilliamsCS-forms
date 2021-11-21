@@ -1,4 +1,2 @@
-export * from "./DomForm";
-export * from "./FormBehaviorHandle";
+export * from "./FormModel";
 export * from "./FormSubmission";
-export * from "./useFormBehavior";

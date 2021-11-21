@@ -1,4 +1,3 @@
-import { FormControlError } from "./FormControlError";
 import { ValidationError } from "../primary/ValidationError";
 import {
   validityError,
@@ -7,7 +6,6 @@ import {
   validValidity,
   Validity,
 } from "./Validity";
-import { testFieldError } from "./validatedValue/testFieldError";
 
 describe("validityError", () => {
   it("returns undefined when validity is valid", () => {
@@ -22,19 +20,19 @@ describe("validityError", () => {
     // Arrange
     const validity: Validity<ValidationError> = {
       isValid: false,
-      error: miscError,
+      error: miscError1,
     };
     // Act
     const result = validityError(validity);
     // Assert
-    expect(result).toBe(miscError);
+    expect(result).toBe(miscError1);
   });
 });
 
 describe("validityFor", () => {
   it("returns invalid validity that wraps the provided error", () => {
     // Arrange
-    const error: FormControlError<ValidationError> | undefined = miscError;
+    const error: ValidationError | undefined = miscError1;
     // Act
     const result = validityFor(error);
     // Assert
@@ -45,7 +43,7 @@ describe("validityFor", () => {
   });
   it("returns valid validity when there is no error", () => {
     // Arrange
-    const error: FormControlError<ValidationError> | undefined = undefined;
+    const error: ValidationError | undefined = undefined;
     // Act
     const result = validityFor(error);
     // Assert
@@ -58,7 +56,7 @@ describe("mapValidity", () => {
     // Arrange
     const baseValidity: Validity<ValidationError> = {
       isValid: false,
-      error: miscError,
+      error: miscError1,
     };
     const errorMapper = () => miscError2;
     // Act
@@ -82,7 +80,7 @@ describe("mapValidity", () => {
     // Arrange
     const baseValidity: Validity<ValidationError> = {
       isValid: false,
-      error: miscError,
+      error: miscError1,
     };
     const errorMapper = () => undefined;
     // Act
@@ -92,5 +90,11 @@ describe("mapValidity", () => {
   });
 });
 
-const miscError = testFieldError("error");
-const miscError2 = testFieldError("error2");
+const miscError1: ValidationError = {
+  type: "error1",
+  requiresConfirmation: false,
+};
+const miscError2: ValidationError = {
+  type: "error2",
+  requiresConfirmation: false,
+};
