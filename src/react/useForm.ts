@@ -14,14 +14,16 @@ import { Handler } from "../utility";
  * Encapsulates validation checking and status around basic form behavior.
  * @param onSubmit What to do with the form's value when ultimately submitted
  */
-export function useForm<T, E, TSubmit = void>(
-  onSubmit: (value: T, submitValue: TSubmit) => Promise<void>,
+export function useForm<T, TFinal, E, TSubmit = void>(
+  onSubmit: (value: TFinal, submitValue: TSubmit) => Promise<void>,
 ): FormVitals<T, E, TSubmit> {
   const formModel = useStableValue(() => new FormModel<T, TSubmit, E>(), []);
   const [submitAttempted, setSubmitAttempted] = React.useState(false);
   const [submitPromise, handleUltimateSubmit] = useDelayedState(
     (submission: FormSubmission<T, TSubmit>) =>
-      onSubmit(submission.value, submission.submitValue),
+      // assume that valid values are typed correctly.
+      // TODO: is there a better conceptual way to do this?
+      onSubmit(submission.value as unknown as TFinal, submission.submitValue),
   );
 
   // TODO: ripe for extraction to more prescriptive tool
