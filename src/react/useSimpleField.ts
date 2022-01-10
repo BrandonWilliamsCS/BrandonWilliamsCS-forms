@@ -37,10 +37,18 @@ export function useSimpleField<T, E>(
     onBaseValueChange(initialValue!);
   }, []);
 
+  // This is a stopgap; when subscribing below, we need the latest
+  //  handleUltimateSubmit to be called, not the closed-over one.
+  // The typical solution is to repeat the useEffect per change,
+  //  but that could cause subscription churn with the form model.
+  const onBaseValueChangeRef = React.useRef(onBaseValueChange);
+  onBaseValueChangeRef.current = onBaseValueChange;
   // Listen for external changes by subscribing to the control interface.
   React.useEffect(() => {
     const unsubscribable = controlInterface.valueSource.subscribe({
-      next: onBaseValueChange,
+      next: (nextValue) => {
+        onBaseValueChangeRef.current(nextValue);
+      },
     });
     return unsubscribable.unsubscribe;
   }, [controlInterface.valueSource]);

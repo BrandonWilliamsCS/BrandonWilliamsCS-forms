@@ -68,7 +68,7 @@ describe("useSimpleField", () => {
   });
 });
 
-function requiredValidator(value: string): string[] {
+function requiredValidator(value: string): string[] | undefined {
   return value ? undefined : ["required"];
 }
 

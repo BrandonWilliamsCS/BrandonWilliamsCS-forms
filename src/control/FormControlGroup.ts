@@ -44,7 +44,6 @@ export class FormControlGroup<TParent, E> {
       onValueChange: (childFormValue) => {
         this.latestChildChanges.set(key, childFormValue);
         const parentFormValue = this.buildParentFormValue();
-        // TODO: what if a key is missing?
         this.parentInterface.onValueChange(parentFormValue);
       },
     };

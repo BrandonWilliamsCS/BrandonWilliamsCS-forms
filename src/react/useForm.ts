@@ -22,30 +22,30 @@ export function useForm<T, TFinal, E, TSubmit = void>(
   const [submitPromise, handleUltimateSubmit] = useDelayedState(
     (submission: FormSubmission<T, TSubmit>) =>
       // assume that valid values are typed correctly.
-      // TODO: is there a better conceptual way to do this?
       onSubmit(submission.value as unknown as TFinal, submission.submitValue),
   );
 
-  // TODO: ripe for extraction to more prescriptive tool
   const triggerSubmit: Handler<TSubmit> = (submitValue) => {
     setSubmitAttempted(true);
     formModel.triggerSubmit(submitValue);
   };
 
+  // This is a stopgap; when subscribing below, we need the latest
+  //  handleUltimateSubmit to be called, not the closed-over one.
+  // The typical solution is to repeat the useEffect per change,
+  //  but that could cause subscription churn with the form model.
+  const handleUltimateSubmitRef = React.useRef(handleUltimateSubmit);
+  handleUltimateSubmitRef.current = handleUltimateSubmit;
   React.useEffect(() => {
     return formModel.subscribe({
       next: (submission) => {
-        return handleUltimateSubmit(submission);
+        return handleUltimateSubmitRef.current(submission);
       },
     }).unsubscribe;
   }, [formModel]);
 
   // Usage will almost always involve a status indicator, so save consumers the
   // hassle by giving them a status instead of just a promise.
-  // TODO: actually, work it into a more cohesive submit tracking model.
-  // -last attempt, local success, full success
-  // -timestamp (as class), current status
-  // -consider history "log" and let consumers interpret
   const submitStatus = usePromiseStatus(submitPromise);
   return {
     controlInterface: formModel.controlModel,

@@ -11,7 +11,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError, string>(handleSubmit),
+        useForm<string, string, ValidationError, string>(handleSubmit),
       );
       act(() => {
         const { controlInterface } = result.current;
@@ -30,12 +30,38 @@ describe("useForm", () => {
         "SaveAndContinue",
       );
     });
+    it("calls the current onSubmit even after re-render", async () => {
+      // Arrange
+      const handleSubmit1 = jest.fn().mockReturnValue(new Promise(() => {}));
+      const handleSubmit2 = jest.fn().mockReturnValue(new Promise(() => {}));
+      // Act
+      const { result, rerender } = renderHook(
+        (handleSubmit) =>
+          useForm<string, string, ValidationError>(handleSubmit),
+        { initialProps: handleSubmit1 },
+      );
+      act(() => {
+        const { controlInterface } = result.current;
+        controlInterface.onValueChange({
+          value: "different value",
+          validity: validValidity,
+        });
+      });
+      rerender(handleSubmit2);
+      act(() => {
+        const { triggerSubmit } = result.current;
+        triggerSubmit();
+      });
+      // Assert
+      expect(handleSubmit1).not.toHaveBeenCalled();
+      expect(handleSubmit2).toHaveBeenCalled();
+    });
     it("doesn't call onSubmit when the value is invalid", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError, string>(handleSubmit),
+        useForm<string, string, ValidationError>(handleSubmit),
       );
       act(() => {
         const { controlInterface } = result.current;
@@ -46,7 +72,7 @@ describe("useForm", () => {
       });
       act(() => {
         const { triggerSubmit } = result.current;
-        triggerSubmit("SaveAndContinue");
+        triggerSubmit();
       });
       // Assert
       expect(handleSubmit).not.toHaveBeenCalled();
@@ -56,7 +82,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError, string>(handleSubmit),
+        useForm<string, string, ValidationError>(handleSubmit),
       );
       act(() => {
         const { controlInterface } = result.current;
@@ -67,7 +93,7 @@ describe("useForm", () => {
       });
       act(() => {
         const { triggerSubmit } = result.current;
-        triggerSubmit("SaveAndContinue");
+        triggerSubmit();
       });
       // Assert
       const { submitAttempted } = result.current;
@@ -80,7 +106,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError>(handleSubmit),
+        useForm<string, string, ValidationError>(handleSubmit),
       );
       // Assert
       const { submitStatus } = result.current;
@@ -91,7 +117,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError>(handleSubmit),
+        useForm<string, string, ValidationError>(handleSubmit),
       );
       act(() => {
         const { controlInterface } = result.current;
@@ -114,7 +140,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError>(handleSubmit),
+        useForm<string, string, ValidationError>(handleSubmit),
       );
       act(() => {
         const { controlInterface } = result.current;
@@ -137,7 +163,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError>(handleSubmit),
+        useForm<string, string, ValidationError>(handleSubmit),
       );
       act(() => {
         const { controlInterface } = result.current;
@@ -165,7 +191,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
       const { result } = renderHook(() =>
-        useForm<string, ValidationError>(handleSubmit),
+        useForm<string, string, ValidationError>(handleSubmit),
       );
       // Assert
       const { submitAttempted } = result.current;

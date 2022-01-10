@@ -35,7 +35,6 @@ export class FormControlArray<T, E> {
       onValueChange: (childFormValue) => {
         this.latestChildChanges[index] = childFormValue;
         const parentFormValue = this.buildParentFormValue();
-        // TODO: what if an index is missing?
         this.parentInterface.onValueChange(parentFormValue);
       },
     };
