@@ -5,7 +5,7 @@ import { FormControlProps } from "./FormControlProps";
 export interface FieldFormControlProps<T, E> extends FormControlProps<T, E> {
   label: string;
   name: string;
-  validator?: Validator<T | undefined, E>;
+  validator?: Validator<T, E>;
   /** Indicates that a control should be disabled and report no value */
   disabled?: boolean;
 }

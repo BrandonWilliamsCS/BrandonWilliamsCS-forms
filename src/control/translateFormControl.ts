@@ -1,7 +1,7 @@
 import { translateSubscribable } from "@blueharborsolutions/data-tools/observable";
 
-import { HandlerInterceptor, interceptHandler, Mapper } from "../utility";
-import { FormValue } from "../value/FormValue";
+import { Mapper } from "../utility";
+import { mapFormValue } from "../value";
 import { FormControlInterface } from "./FormControlInterface";
 
 /**
@@ -10,27 +10,26 @@ import { FormControlInterface } from "./FormControlInterface";
  * @remarks
  * This is useful when an underlying component (e.g., a text field) has one
  * type but its consumer requires another (e.g., a date or other parsed value).
- * It also enables "filtering" of outgoing values through interception.
  *
  * @param sourceInterface - A base FormControlInterface that will be split.
- * @param mapValue - Logic for translating a value from source to target.
- * @param changeInterceptor - Logic for translating changes back from target to source.
+ * @param mapSourceToTarget - Logic for translating a value from source to target.
+ * @param mapTargetToSource - Logic for translating a value back from target to source.
  */
 export function translateFormControl<S, T, E>(
   sourceInterface: FormControlInterface<S, E>,
-  mapValue: Mapper<S, T>,
-  changeInterceptor: HandlerInterceptor<FormValue<T, E>, FormValue<S, E>>,
+  mapSourceToTarget: Mapper<S, T>,
+  mapTargetToSource: Mapper<T, S>,
 ): FormControlInterface<T, E> {
   return {
     valueSource: translateSubscribable(
       sourceInterface.valueSource,
-      (value, emit) => {
-        emit(mapValue(value));
+      (sourceValue, emit) => {
+        emit(mapSourceToTarget(sourceValue));
       },
     ),
-    onValueChange: interceptHandler(
-      sourceInterface.onValueChange,
-      changeInterceptor,
-    ),
+    onValueChange: (targetFormValue) => {
+      const sourceFormValue = mapFormValue(targetFormValue, mapTargetToSource);
+      sourceInterface.onValueChange(sourceFormValue);
+    },
   };
 }
