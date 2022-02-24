@@ -1,7 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { ValidationError } from "../validation/ValidationError";
-import { FieldError, validityFor, validValidity } from "../value";
+import { validityFor, validValidity } from "../value";
 import { useForm } from "./useForm";
 
 describe("useForm", () => {
@@ -11,11 +10,11 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError, string>(handleSubmit),
+        useForm<string, string, string, string>(handleSubmit),
       );
       act(() => {
-        const { controlInterface } = result.current;
-        controlInterface.onValueChange({
+        const { formModel } = result.current;
+        formModel.valueConsumer.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -36,13 +35,12 @@ describe("useForm", () => {
       const handleSubmit2 = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result, rerender } = renderHook(
-        (handleSubmit) =>
-          useForm<string, string, ValidationError>(handleSubmit),
+        (handleSubmit) => useForm<string, string, string>(handleSubmit),
         { initialProps: handleSubmit1 },
       );
       act(() => {
-        const { controlInterface } = result.current;
-        controlInterface.onValueChange({
+        const { formModel } = result.current;
+        formModel.valueConsumer.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -61,13 +59,13 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, string, string>(handleSubmit),
       );
       act(() => {
-        const { controlInterface } = result.current;
-        controlInterface.onValueChange({
+        const { formModel } = result.current;
+        formModel.valueConsumer.onFormValueChange({
           value: "different value",
-          validity: validityFor(testFieldError("test-error")),
+          validity: validityFor("test-error"),
         });
       });
       act(() => {
@@ -82,13 +80,13 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, string, string>(handleSubmit),
       );
       act(() => {
-        const { controlInterface } = result.current;
-        controlInterface.onValueChange({
+        const { formModel } = result.current;
+        formModel.valueConsumer.onFormValueChange({
           value: "different value",
-          validity: validityFor(testFieldError("test-error")),
+          validity: validityFor("test-error"),
         });
       });
       act(() => {
@@ -106,7 +104,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, string, string>(handleSubmit),
       );
       // Assert
       const { submitStatus } = result.current;
@@ -117,11 +115,11 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, string, string>(handleSubmit),
       );
       act(() => {
-        const { controlInterface } = result.current;
-        controlInterface.onValueChange({
+        const { formModel } = result.current;
+        formModel.valueConsumer.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -140,11 +138,11 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, string, string>(handleSubmit),
       );
       act(() => {
-        const { controlInterface } = result.current;
-        controlInterface.onValueChange({
+        const { formModel } = result.current;
+        formModel.valueConsumer.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -163,11 +161,11 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockReturnValue(promise);
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, string, string>(handleSubmit),
       );
       act(() => {
-        const { controlInterface } = result.current;
-        controlInterface.onValueChange({
+        const { formModel } = result.current;
+        formModel.valueConsumer.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -191,7 +189,7 @@ describe("useForm", () => {
       const handleSubmit = jest.fn().mockResolvedValue(undefined);
       // Act
       const { result } = renderHook(() =>
-        useForm<string, string, ValidationError>(handleSubmit),
+        useForm<string, string, string>(handleSubmit),
       );
       // Assert
       const { submitAttempted } = result.current;
@@ -208,11 +206,4 @@ function makePromise<T, E = any>() {
     reject = _reject;
   });
   return { promise, resolve, reject };
-}
-
-function testFieldError(type: string): FieldError<ValidationError> {
-  return {
-    variant: "field",
-    errors: [{ type, requiresConfirmation: false }],
-  };
 }

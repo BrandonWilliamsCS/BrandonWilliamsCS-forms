@@ -4,11 +4,9 @@ import {
   useDelayedState,
   usePromiseStatus,
   useStableValue,
+  useSubscription,
 } from "@blueharborsolutions/react-data-tools";
-
-import { FormControlInterface } from "../control";
 import { FormModel, FormSubmission } from "../form";
-import { Handler } from "../utility";
 
 /**
  * Encapsulates validation checking and status around basic form behavior.
@@ -22,13 +20,10 @@ export function useForm<T, TFinal, E, TSubmit = void>(
   const [submitPromise, handleUltimateSubmit] = useDelayedState(
     (submission: FormSubmission<T, TSubmit>) =>
       // assume that valid values are typed correctly.
+      // TODO: is there a better conceptual way to do this?
+      //   probably need to bake that into FormValue.
       onSubmit(submission.value as unknown as TFinal, submission.submitValue),
   );
-
-  const triggerSubmit: Handler<TSubmit> = (submitValue) => {
-    setSubmitAttempted(true);
-    formModel.triggerSubmit(submitValue);
-  };
 
   // This is a stopgap; when subscribing below, we need the latest
   //  handleUltimateSubmit to be called, not the closed-over one.
@@ -36,27 +31,30 @@ export function useForm<T, TFinal, E, TSubmit = void>(
   //  but that could cause subscription churn with the form model.
   const handleUltimateSubmitRef = React.useRef(handleUltimateSubmit);
   handleUltimateSubmitRef.current = handleUltimateSubmit;
-  React.useEffect(() => {
-    return formModel.subscribe({
-      next: (submission) => {
-        return handleUltimateSubmitRef.current(submission);
-      },
-    }).unsubscribe;
-  }, [formModel]);
+  useSubscription(formModel.submits, (submission) => {
+    setSubmitAttempted(true);
+    if (submission.value.validity.isValid) {
+      const validSubmission = {
+        value: submission.value.value,
+        submitValue: submission.submitValue,
+      };
+      handleUltimateSubmitRef.current(validSubmission);
+    }
+  });
 
   // Usage will almost always involve a status indicator, so save consumers the
   // hassle by giving them a status instead of just a promise.
   const submitStatus = usePromiseStatus(submitPromise);
   return {
-    controlInterface: formModel.controlModel,
+    formModel,
     submitAttempted,
     submitStatus,
-    triggerSubmit,
+    triggerSubmit: formModel.triggerSubmit.bind(formModel),
   };
 }
 
 export interface FormVitals<T, E, TSubmit> {
-  controlInterface: FormControlInterface<T, E>;
+  formModel: FormModel<T, TSubmit, E>;
   submitAttempted: boolean;
   submitStatus: PromiseStatus<void> | undefined;
   triggerSubmit: (submitValue: TSubmit) => void;

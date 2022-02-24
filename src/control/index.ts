@@ -1,5 +1,2 @@
-export * from "./FormControlArray";
-export * from "./FormControlGroup";
-export * from "./FormControlModel";
-export * from "./FormControlInterface";
-export * from "./translateFormControl";
+export * from "./CoreFormControlValue";
+export * from "./FormControlValue";

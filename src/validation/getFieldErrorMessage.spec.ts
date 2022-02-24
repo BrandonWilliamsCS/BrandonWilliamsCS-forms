@@ -1,4 +1,5 @@
 import { Validity, validityFor, validValidity } from "../value";
+import { FormControlError } from "./FormControlError";
 import { getFieldErrorMessage } from "./getFieldErrorMessage";
 
 function resolveMessage(key: string): string | undefined {
@@ -8,7 +9,7 @@ function resolveMessage(key: string): string | undefined {
 describe("getFieldErrorMessage", () => {
   it("returns no message on valid validity", async () => {
     // Arrange
-    const validity: Validity<string> = validValidity;
+    const validity: Validity<FormControlError<string>> = validValidity;
     // Act
     const message = getFieldErrorMessage(validity, resolveMessage);
     // Assert
@@ -16,7 +17,7 @@ describe("getFieldErrorMessage", () => {
   });
   it("returns message for first error that resolves to a message", async () => {
     // Arrange
-    const validity: Validity<string> = validityFor({
+    const validity: Validity<FormControlError<string>> = validityFor({
       variant: "field",
       errors: ["", "error"],
     });
@@ -27,7 +28,7 @@ describe("getFieldErrorMessage", () => {
   });
   it("returns no message if no error resolves to a message", async () => {
     // Arrange
-    const validity: Validity<string> = validityFor({
+    const validity: Validity<FormControlError<string>> = validityFor({
       variant: "field",
       errors: [""],
     });

@@ -1,5 +1,3 @@
-import { FormControlError } from "./FormControlError";
-
 /**
  * Portrays the validity of some external value by conditionally referencing an error.
  * @remarks
@@ -14,7 +12,7 @@ export type Validity<E> =
     }
   | {
       readonly isValid: false;
-      readonly error: FormControlError<E>;
+      readonly error: E;
     };
 
 /** The single (logically unique) valid `Validity`. Immutable and === safe. */
@@ -22,14 +20,19 @@ export const validValidity: Validity<never> = Object.freeze({
   isValid: true,
 });
 
+export function errorValidity<E>(error: E): Validity<E> {
+  return {
+    isValid: false,
+    error,
+  };
+}
+
 /**
  * Extracts the `FormControlError` from a `Validity`, if present.
  * @param validity a possibly-invalid `Validity`
  * @returns the error, if invalid
  */
-export function validityError<E>(
-  validity: Validity<E>,
-): FormControlError<E> | undefined {
+export function validityError<E>(validity: Validity<E>): E | undefined {
   return validity.isValid ? undefined : validity.error;
 }
 
@@ -38,9 +41,7 @@ export function validityError<E>(
  * @param error the possible error to wrap a validity
  * @returns the appropriate validity.
  */
-export function validityFor<E>(
-  error: FormControlError<E> | undefined,
-): Validity<E> {
+export function validityFor<E>(error: E | undefined): Validity<E> {
   return error
     ? {
         isValid: false,
@@ -57,9 +58,7 @@ export function validityFor<E>(
  */
 export function mapValidity<E>(
   baseValidity: Validity<E>,
-  errorMapper: (
-    baseError: FormControlError<E>,
-  ) => FormControlError<E> | undefined,
+  errorMapper: (baseError: E) => E | undefined,
 ): Validity<E> {
   if (baseValidity.isValid) {
     return baseValidity;

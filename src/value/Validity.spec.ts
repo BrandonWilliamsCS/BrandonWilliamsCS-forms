@@ -1,4 +1,4 @@
-import { ValidationError } from "../primary/ValidationError";
+import { ValidationError } from "../validation/ValidationError";
 import {
   validityError,
   validityFor,

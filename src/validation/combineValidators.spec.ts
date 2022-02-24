@@ -14,4 +14,17 @@ describe("combineValidators", () => {
     // Assert
     expect(errors).toEqual(["error1", "error2"]);
   });
+  it("ignores undefined validators", async () => {
+    // Arrange
+    const validator1 = undefined;
+    const validator2 = () => ["error2"];
+    // Act
+    const combinedValidator = combineValidators<string, string>(
+      validator1,
+      validator2,
+    );
+    const errors = combinedValidator("value");
+    // Assert
+    expect(errors).toEqual(["error2"]);
+  });
 });

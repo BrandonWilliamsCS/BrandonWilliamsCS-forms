@@ -7,4 +7,4 @@
  * the username - one that happens to be uncertain sometimes. It is suitable to
  * handle the asynchronicity as a value-side concern and validate synchronously.
  */
-export type Validator<T, E> = (value: T) => E[] | undefined;
+export type Validator<T, E> = (value: T) => E | undefined;

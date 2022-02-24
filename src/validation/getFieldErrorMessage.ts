@@ -1,7 +1,8 @@
 import { Validity } from "../value";
+import { FormControlError } from "./FormControlError";
 
 export function getFieldErrorMessage<E>(
-  validity: Validity<E>,
+  validity: Validity<FormControlError<E>>,
   messageResolver: (error: E) => string | undefined,
 ): string | undefined {
   if (validity.isValid) {
