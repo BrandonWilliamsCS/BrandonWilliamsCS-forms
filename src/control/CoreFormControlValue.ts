@@ -3,16 +3,16 @@ import { Validator } from "../validation";
 import { FormValue, validityFor } from "../value";
 import { FormControlValue } from "./FormControlValue";
 
-export class CoreFormControlValue<T, E> implements FormControlValue<T, E> {
+export class CoreFormControlValue<T, E> implements FormControlValue<T, E[]> {
   private validator: Validator<T, E> | undefined;
   private readonly formValueSubject: BehaviorSubject<
-    FormValue<T, E> | undefined
+    FormValue<T, E[]> | undefined
   >;
-  public get formValues(): Observable<FormValue<T, E> | undefined> {
+  public get formValues(): Observable<FormValue<T, E[]> | undefined> {
     return this.formValueSubject;
   }
 
-  public get formValue(): FormValue<T, E> | undefined {
+  public get formValue(): FormValue<T, E[]> | undefined {
     return this.formValueSubject.value;
   }
 
@@ -23,7 +23,7 @@ export class CoreFormControlValue<T, E> implements FormControlValue<T, E> {
   ) {
     this.validator = initialValidator;
     const initialFormValue = this.computeFormValue(initialValue);
-    this.formValueSubject = new BehaviorSubject<FormValue<T, E> | undefined>(
+    this.formValueSubject = new BehaviorSubject<FormValue<T, E[]> | undefined>(
       initialFormValue,
     );
   }
@@ -48,7 +48,7 @@ export class CoreFormControlValue<T, E> implements FormControlValue<T, E> {
     this.formValueSubject.next(undefined);
   }
 
-  protected computeFormValue(baseValue: T): FormValue<T, E> {
+  protected computeFormValue(baseValue: T): FormValue<T, E[]> {
     const error = this.validator?.(baseValue);
     const validity = validityFor(error);
     return {

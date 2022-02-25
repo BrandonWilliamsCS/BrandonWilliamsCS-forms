@@ -9,7 +9,7 @@ import { CoreFormControlValue } from "../control";
 import { Validator } from "../validation";
 
 export function useFormControlValue<T, E>(
-  valueConsumer: FormValueConsumer<T, E>,
+  valueConsumer: FormValueConsumer<T, E[]>,
   defaultValue: T,
   validator?: Validator<T, E>,
   equalityComparer = (a: T, b: T) => a === b,
