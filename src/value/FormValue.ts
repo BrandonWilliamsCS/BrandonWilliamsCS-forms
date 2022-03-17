@@ -1,8 +1,8 @@
 import { Mapper } from "../utility";
-import { Validity, mapValidity } from "./Validity";
+import { Validity } from "./Validity";
 
 /**
- * Presents a consumer value alongside its validity in the context of a form.
+ * Presents a form control's base value alongside its validity in the context of a form.
  */
 export interface FormValue<T, E> {
   value: T;

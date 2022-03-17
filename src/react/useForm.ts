@@ -16,7 +16,6 @@ export function useForm<T, TFinal, E, TSubmit = void>(
   onSubmit: (value: TFinal, submitValue: TSubmit) => Promise<void>,
 ): FormVitals<T, E, TSubmit> {
   const formModel = useStableValue(() => new FormModel<T, TSubmit, E>(), []);
-  const [submitAttempted, setSubmitAttempted] = React.useState(false);
   const [submitPromise, handleUltimateSubmit] = useDelayedState(
     (submission: FormSubmission<T, TSubmit>) =>
       // assume that valid values are typed correctly.
@@ -32,7 +31,6 @@ export function useForm<T, TFinal, E, TSubmit = void>(
   const handleUltimateSubmitRef = React.useRef(handleUltimateSubmit);
   handleUltimateSubmitRef.current = handleUltimateSubmit;
   useSubscription(formModel.submits, (submission) => {
-    setSubmitAttempted(true);
     if (submission.value.validity.isValid) {
       const validSubmission = {
         value: submission.value.value,
@@ -47,7 +45,6 @@ export function useForm<T, TFinal, E, TSubmit = void>(
   const submitStatus = usePromiseStatus(submitPromise);
   return {
     formModel,
-    submitAttempted,
     submitStatus,
     triggerSubmit: formModel.triggerSubmit.bind(formModel),
   };
@@ -55,7 +52,6 @@ export function useForm<T, TFinal, E, TSubmit = void>(
 
 export interface FormVitals<T, E, TSubmit> {
   formModel: FormModel<T, TSubmit, E>;
-  submitAttempted: boolean;
   submitStatus: PromiseStatus<void> | undefined;
   triggerSubmit: (submitValue: TSubmit) => void;
 }

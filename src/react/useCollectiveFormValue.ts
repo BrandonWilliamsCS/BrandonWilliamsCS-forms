@@ -1,38 +1,48 @@
-import React from "react";
+import { useStableValue } from "@blueharborsolutions/react-data-tools";
 import { toPairs } from "lodash";
-import {
-  useStableValue,
-  useSubscription,
-} from "@blueharborsolutions/react-data-tools";
 
 import { FormValueConsumer } from "../value";
-import { CollectiveFormValueConsumer } from "../value/transform";
+import { CollectiveFormValueConsumer } from "../value/collective/CollectiveFormValueConsumer";
+import { ChildItem, useKeyedItemComposition } from "./useKeyedItemComposition";
 
 export function useCollectiveFormValue<T, E>(
   parentConsumer: FormValueConsumer<Record<string, T>, Record<string, E>>,
   initialParentValue: Record<string, T>,
 ) {
-  const [currentItems, setCurrentItems] = React.useState<
-    { key: string; initialValue: T }[]
-  >(() =>
-    toPairs(initialParentValue).map(([key, initialValue]) => ({
-      key,
-      initialValue,
-    })),
+  const collectiveConsumer = useStableValue(
+    () => new CollectiveFormValueConsumer(parentConsumer),
+    [parentConsumer],
   );
-  const collectiveConsumer = useStableValue(() => {
-    return new CollectiveFormValueConsumer(parentConsumer);
-  }, [parentConsumer]);
-  function addItem(key: string, initialValue: T) {
-    setCurrentItems((prev) => [...prev, { key, initialValue }]);
-  }
-  function removeItem(key: string) {
-    setCurrentItems((prev) => prev.filter((pair) => pair.key !== key));
-    collectiveConsumer.getItemConsumer(key).onFormValueChange(undefined);
-  }
-  useSubscription(collectiveConsumer.newItems, ({ key, itemValue }) => {
-    addItem(key, itemValue);
-  });
-  useSubscription(collectiveConsumer.omittedItems, removeItem);
-  return { collectiveConsumer, currentItems, addItem, removeItem };
+  const compositionModel = useKeyedItemComposition<T, Record<string, T>>(
+    parentConsumer.valueSource,
+    initialParentValue,
+    ({ droppedKeys }) => {
+      // dropped keys won't be rendered, so we need to manually inform the parent that it's gone.
+      droppedKeys.forEach((key) => {
+        collectiveConsumer.getItemConsumer(key).onFormValueChange(undefined);
+      });
+    },
+    adjustChildItems,
+  );
+
+  // TODO: a more deliberate api with explicit interaction points
+  return {
+    collectiveConsumer,
+    compositionModel,
+  };
+}
+
+function adjustChildItems<T>(
+  incoming: Record<string, T>,
+  existing: ChildItem<T>[],
+): ChildItem<T>[] {
+  const remainingItems = existing.filter(
+    (existingItem) => existingItem.key in incoming,
+  );
+  const addedItems = toPairs(incoming)
+    .filter(
+      ([key]) => !existing.some((existingItem) => existingItem.key === key),
+    )
+    .map(([key, value]) => ({ key, value }));
+  return [...remainingItems, ...addedItems];
 }

@@ -1,39 +1,33 @@
-import { BehaviorSubject, Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { Validator } from "../validation";
 import { FormValue, validityFor } from "../value";
 import { FormControlValue } from "./FormControlValue";
 
 export class CoreFormControlValue<T, E> implements FormControlValue<T, E[]> {
-  private validator: Validator<T, E> | undefined;
-  private readonly formValueSubject: BehaviorSubject<
+  private readonly formValueSubject = new Subject<
     FormValue<T, E[]> | undefined
-  >;
+  >();
+  private latestFormValue: FormValue<T, E[]> | undefined;
+
   public get formValues(): Observable<FormValue<T, E[]> | undefined> {
     return this.formValueSubject;
   }
 
   public get formValue(): FormValue<T, E[]> | undefined {
-    return this.formValueSubject.value;
+    return this.latestFormValue;
   }
 
   constructor(
-    initialValue: T,
-    initialValidator: Validator<T, E> | undefined,
+    private validator: Validator<T, E> | undefined,
     public equalityComparer = (a: T, b: T) => a === b,
-  ) {
-    this.validator = initialValidator;
-    const initialFormValue = this.computeFormValue(initialValue);
-    this.formValueSubject = new BehaviorSubject<FormValue<T, E[]> | undefined>(
-      initialFormValue,
-    );
-  }
+  ) {}
 
   setValue(value: T): void {
     if (this.formValue && this.equalityComparer(value, this.formValue?.value)) {
       return;
     }
     const formValue = this.computeFormValue(value);
-    this.formValueSubject.next(formValue);
+    this.setFormValue(formValue);
   }
 
   setValidator(validator: Validator<T, E> | undefined) {
@@ -55,5 +49,10 @@ export class CoreFormControlValue<T, E> implements FormControlValue<T, E[]> {
       value: baseValue,
       validity,
     };
+  }
+
+  private setFormValue(formValue: FormValue<T, E[]> | undefined): void {
+    this.latestFormValue = formValue;
+    this.formValueSubject.next(formValue);
   }
 }

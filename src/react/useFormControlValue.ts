@@ -10,7 +10,7 @@ import { Validator } from "../validation";
 
 export function useFormControlValue<T, E>(
   valueConsumer: FormValueConsumer<T, E[]>,
-  defaultValue: T,
+  initialValue: T,
   validator?: Validator<T, E>,
   equalityComparer = (a: T, b: T) => a === b,
   providedValueModel?: CoreFormControlValue<T, E>,
@@ -18,7 +18,7 @@ export function useFormControlValue<T, E>(
   const valueModel = useStableValue(
     () =>
       providedValueModel ??
-      new CoreFormControlValue(defaultValue, validator, equalityComparer),
+      new CoreFormControlValue(validator, equalityComparer),
     [providedValueModel],
   );
   valueModel.setValidator(validator);
@@ -34,6 +34,10 @@ export function useFormControlValue<T, E>(
   useSubscription(valueConsumer.valueSource, (baseValue) => {
     valueModel.setValue(baseValue);
   });
+  // Set initial value so that the component always has one.
+  React.useEffect(() => {
+    valueModel.setValue(initialValue);
+  }, []);
   return {
     formValue,
     clearValue: valueModel.clearValue.bind(valueModel),

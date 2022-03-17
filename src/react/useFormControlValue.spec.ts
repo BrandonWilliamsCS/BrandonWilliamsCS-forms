@@ -4,9 +4,9 @@ import { FormValueAdapter } from "../value/transform";
 import { useFormControlValue } from "./useFormControlValue";
 
 describe("useFormControlValue", () => {
-  it("reports a lack of FormValue before any changes", async () => {
+  it("reports FormValue with initial value before any changes", async () => {
     // Arrange
-    const adapter = new FormValueAdapter<string, string>();
+    const adapter = new FormValueAdapter<string, string[]>();
     // Act
     const { result } = renderHook(() =>
       useFormControlValue(adapter, "", requiredValidator),
@@ -18,7 +18,7 @@ describe("useFormControlValue", () => {
   });
   it("updates value and validity in response to upstream value", async () => {
     // Arrange
-    const adapter = new FormValueAdapter<string, string>();
+    const adapter = new FormValueAdapter<string, string[]>();
     // Act
     const { result } = renderHook(() =>
       useFormControlValue(adapter, "", requiredValidator),
@@ -33,7 +33,7 @@ describe("useFormControlValue", () => {
   });
   it("updates value and validity after call to onValueChange", async () => {
     // Arrange
-    const adapter = new FormValueAdapter<string, string>();
+    const adapter = new FormValueAdapter<string, string[]>();
     // Act
     const { result } = renderHook(() =>
       useFormControlValue(adapter, "", requiredValidator),
@@ -49,7 +49,7 @@ describe("useFormControlValue", () => {
   });
   it("notifies interface of new form value in response to upstream value", async () => {
     // Arrange
-    const adapter = new FormValueAdapter<string, string>();
+    const adapter = new FormValueAdapter<string, string[]>();
     const formValueListener = jest.fn();
     adapter.formValues.subscribe({ next: formValueListener });
     // Act
@@ -67,7 +67,7 @@ describe("useFormControlValue", () => {
   });
   it("notifies interface of new form value after call to onValueChange", async () => {
     // Arrange
-    const adapter = new FormValueAdapter<string, string>();
+    const adapter = new FormValueAdapter<string, string[]>();
     const formValueListener = jest.fn();
     adapter.formValues.subscribe({ next: formValueListener });
     // Act
@@ -86,11 +86,11 @@ describe("useFormControlValue", () => {
   });
 });
 
-function requiredValidator(value: string): string | undefined {
-  return value ? undefined : "required";
+function requiredValidator(value: string): string[] | undefined {
+  return value ? undefined : ["required"];
 }
 
-const requiredErrorValidity: Validity<string> = {
+const requiredErrorValidity: Validity<string[]> = {
   isValid: false,
-  error: "required",
+  error: ["required"],
 };

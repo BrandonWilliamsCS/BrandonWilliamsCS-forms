@@ -14,7 +14,7 @@ describe("useForm", () => {
       );
       act(() => {
         const { formModel } = result.current;
-        formModel.valueConsumer.onFormValueChange({
+        formModel.valueAdapter.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -40,7 +40,7 @@ describe("useForm", () => {
       );
       act(() => {
         const { formModel } = result.current;
-        formModel.valueConsumer.onFormValueChange({
+        formModel.valueAdapter.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -63,7 +63,7 @@ describe("useForm", () => {
       );
       act(() => {
         const { formModel } = result.current;
-        formModel.valueConsumer.onFormValueChange({
+        formModel.valueAdapter.onFormValueChange({
           value: "different value",
           validity: validityFor("test-error"),
         });
@@ -74,28 +74,6 @@ describe("useForm", () => {
       });
       // Assert
       expect(handleSubmit).not.toHaveBeenCalled();
-    });
-    it("records submit attempt even when submit intercepted", async () => {
-      // Arrange
-      const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
-      // Act
-      const { result } = renderHook(() =>
-        useForm<string, string, string>(handleSubmit),
-      );
-      act(() => {
-        const { formModel } = result.current;
-        formModel.valueConsumer.onFormValueChange({
-          value: "different value",
-          validity: validityFor("test-error"),
-        });
-      });
-      act(() => {
-        const { triggerSubmit } = result.current;
-        triggerSubmit();
-      });
-      // Assert
-      const { submitAttempted } = result.current;
-      expect(submitAttempted).toBe(true);
     });
   });
   describe("submitStatus", () => {
@@ -119,7 +97,7 @@ describe("useForm", () => {
       );
       act(() => {
         const { formModel } = result.current;
-        formModel.valueConsumer.onFormValueChange({
+        formModel.valueAdapter.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -142,7 +120,7 @@ describe("useForm", () => {
       );
       act(() => {
         const { formModel } = result.current;
-        formModel.valueConsumer.onFormValueChange({
+        formModel.valueAdapter.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -165,7 +143,7 @@ describe("useForm", () => {
       );
       act(() => {
         const { formModel } = result.current;
-        formModel.valueConsumer.onFormValueChange({
+        formModel.valueAdapter.onFormValueChange({
           value: "different value",
           validity: validValidity,
         });
@@ -181,19 +159,6 @@ describe("useForm", () => {
       // Assert
       const { submitStatus } = result.current;
       expect(submitStatus?.isPending).toBe(false);
-    });
-  });
-  describe("submitAttempted", () => {
-    it("is initially undefined", async () => {
-      // Arrange
-      const handleSubmit = jest.fn().mockResolvedValue(undefined);
-      // Act
-      const { result } = renderHook(() =>
-        useForm<string, string, string>(handleSubmit),
-      );
-      // Assert
-      const { submitAttempted } = result.current;
-      expect(submitAttempted).toBe(false);
     });
   });
 });

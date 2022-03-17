@@ -1,56 +1,102 @@
-import React from "react";
 import {
   useStableValue,
-  useVolatileValue,
+  useSubscribableValue,
 } from "@blueharborsolutions/react-data-tools";
+import React from "react";
 
 import { FormValueConsumer } from "../value";
-import { translateValueConsumer } from "../value/transform";
-import { useCollectiveFormValue } from "./useCollectiveFormValue";
+import { KeyOrderDetector } from "../value/array/KeyOrderDetector";
+import { splitArrayFormValueConsumer } from "../value/array/splitArrayFormValueConsumer";
+import { CollectiveFormValueConsumer } from "../value/collective/CollectiveFormValueConsumer";
+import { ChildItem, useKeyedItemComposition } from "./useKeyedItemComposition";
+import { identity } from "lodash";
 
+/**
+ * Divides an array-valued FormValueConsumer into a combination of its children
+ * and the overall composition of values by key.
+ * @param parentConsumer The consumer of the parent array values
+ * @param initialParentValue The initial parent array value to use
+ * @returns objects representing the collection of child value consumers, the
+ * composition, and how to generate a key for new items.
+ * @remarks
+ * The composition pairs the currently expected set of keys with their initial
+ * values.
+ */
 export function useArrayFormValue<T, E>(
-  parentConsumer: FormValueConsumer<T[], Record<string, E>>,
-  keyAccessor: (itemValue: T, i: number) => string,
+  parentConsumer: FormValueConsumer<T[], E[]>,
   initialParentValue: T[],
 ) {
-  const volatileKeyAccessor = useVolatileValue(keyAccessor);
-  const keyOrderingRef = React.useRef<string[]>([]);
-  const translatedConsumer = useStableValue(
-    () =>
-      translateValueConsumer(
-        parentConsumer,
-        (array) => arrayToObject(array, volatileKeyAccessor.current),
-        (object) =>
-          keyOrderingRef.current
-            .filter((key) => key in object)
-            .map((key) => object[key]),
-      ),
-    [parentConsumer],
+  const keyGen = useCountingKeygen();
+  const {
+    collectiveConsumer,
+    initialItems,
+    itemOrderSource,
+    onKeyOrderChange,
+  } = useSplitArrayFormValueConsumer(
+    parentConsumer,
+    initialParentValue,
+    keyGen,
   );
-  const { collectiveConsumer, currentItems, addItem, removeItem } =
-    useCollectiveFormValue(
-      translatedConsumer,
-      arrayToObject(initialParentValue, keyAccessor),
-    );
-  keyOrderingRef.current = currentItems.map((item) => item.key);
+
+  const compositionModel = useKeyedItemComposition<T, ChildItem<T>[]>(
+    itemOrderSource,
+    initialItems,
+    ({ newComposition, droppedKeys }) => {
+      onKeyOrderChange(newComposition.map((item) => item.key));
+      // dropped keys won't be rendered, so we need to manually inform the parent that it's gone.
+      droppedKeys.forEach((key) => {
+        collectiveConsumer.getItemConsumer(key).onFormValueChange(undefined);
+      });
+    },
+    identity,
+  );
+
+  const currentComposition = useSubscribableValue(
+    compositionModel.compositions,
+    compositionModel.composition,
+  );
+
+  // TODO: a more deliberate api with explicit interaction points
   return {
     collectiveConsumer,
-    currentItems,
-    addItem: (itemValue: T) => {
-      addItem(keyAccessor(itemValue, currentItems.length), itemValue);
-    },
-    removeItem,
+    compositionModel,
+    currentComposition,
+    keyGen,
   };
 }
 
-function arrayToObject<T>(
-  array: T[],
-  keyAccessor: (itemValue: T, i: number) => string,
-): Record<string, T> {
-  const object: Record<string, T> = {};
-  array.forEach((itemValue, i) => {
-    const key = keyAccessor(itemValue, i);
-    object[key] = itemValue;
-  });
-  return object;
+function useSplitArrayFormValueConsumer<T, E>(
+  parentConsumer: FormValueConsumer<T[], E[]>,
+  initialParentValue: T[],
+  keyGenerator: (itemValue: T) => string,
+) {
+  return useStableValue(() => {
+    const keyOrderDetector = new KeyOrderDetector<T>(keyGenerator);
+    const {
+      valueSource,
+      onFormValueChange,
+      initialItems,
+      itemOrderSource,
+      onKeyOrderChange,
+    } = splitArrayFormValueConsumer(
+      parentConsumer,
+      initialParentValue,
+      keyOrderDetector,
+    );
+    const collectiveConsumer = new CollectiveFormValueConsumer({
+      valueSource,
+      onFormValueChange,
+    });
+    return {
+      collectiveConsumer,
+      initialItems,
+      itemOrderSource,
+      onKeyOrderChange,
+    };
+  }, [parentConsumer]);
+}
+
+function useCountingKeygen() {
+  const counterRef = React.useRef(0);
+  return () => (counterRef.current++).toString();
 }
