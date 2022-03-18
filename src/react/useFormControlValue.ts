@@ -2,7 +2,7 @@ import React from "react";
 import {
   useStableValue,
   useSubscription,
-} from "@blueharborsolutions/react-data-tools";
+} from "@brandonwilliamscs/react-data-tools";
 
 import { FormValueConsumer } from "../value";
 import { CoreFormControlValue } from "../control";
@@ -15,12 +15,17 @@ export function useFormControlValue<T, E>(
   equalityComparer = (a: T, b: T) => a === b,
   providedValueModel?: CoreFormControlValue<T, E>,
 ) {
-  const valueModel = useStableValue(
-    () =>
-      providedValueModel ??
-      new CoreFormControlValue(validator, equalityComparer),
-    [providedValueModel],
-  );
+  const valueModel = useStableValue(() => {
+    if (providedValueModel) {
+      return providedValueModel;
+    }
+    const createdValueModel = new CoreFormControlValue(
+      validator,
+      equalityComparer,
+    );
+    createdValueModel.setValue(initialValue);
+    return createdValueModel;
+  }, [providedValueModel]);
   valueModel.setValidator(validator);
 
   // Render with the latest defined FormValue (which is initially present until cleared)
@@ -34,9 +39,9 @@ export function useFormControlValue<T, E>(
   useSubscription(valueConsumer.valueSource, (baseValue) => {
     valueModel.setValue(baseValue);
   });
-  // Set initial value so that the component always has one.
+  // Initial model value was set on creation, but subscribers need to know about the change.
   React.useEffect(() => {
-    valueModel.setValue(initialValue);
+    valueConsumer.onFormValueChange(valueModel.formValue);
   }, []);
   return {
     formValue,

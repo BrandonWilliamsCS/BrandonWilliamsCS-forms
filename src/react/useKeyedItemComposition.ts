@@ -1,7 +1,7 @@
 import {
   useStableValue,
   useSubscription,
-} from "@blueharborsolutions/react-data-tools";
+} from "@brandonwilliamscs/react-data-tools";
 import React from "react";
 import { Observable } from "rxjs";
 

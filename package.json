@@ -1,8 +1,8 @@
 {
-  "name": "@blueharborsolutions/forms",
+  "name": "@brandonwilliamscs/forms",
   "version": "0.1.0",
   "private": true,
-  "description": "Encode organizational decisions best practices regarding React form usage",
+  "description": "Provides rich, powerful API for complex data forms (particularly in React)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -12,10 +12,10 @@
     "build": "tsc",
     "link": "copy package.json dist\\package.json && cd dist && npm link",
     "test": "jest --watch",
-    "link-deps": "npm link @blueharborsolutions/data-tools @blueharborsolutions/react-data-tools ..\\react-data-tools\\node_modules\\react"
+    "link-deps": "npm link @brandonwilliamscs/data-tools @brandonwilliamscs/react-data-tools ..\\react-data-tools\\node_modules\\react"
   },
-  "author": "Brandon Williams <brandon.williams@blueharborsolutions.com>",
-  "license": "UNLICENSED",
+  "author": "Brandon Williams",
+  "license": "MIT",
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.0.2",
