@@ -2,10 +2,10 @@ import React from "react";
 import { PromiseStatus } from "@brandonwilliamscs/data-tools/promise";
 import {
   useDelayedState,
-  usePromiseStatus,
   useStableValue,
   useSubscription,
 } from "@brandonwilliamscs/react-data-tools";
+import { usePromiseStatus } from "@brandonwilliamscs/react-data-tools/promise";
 import { FormModel, FormSubmission } from "../form";
 
 /**

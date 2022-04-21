@@ -41,6 +41,7 @@ export function useFormControlValue<T, E>(
   });
   // Initial model value was set on creation, but subscribers need to know about the change.
   React.useEffect(() => {
+    // This will fire twice if React "remounts"; that's acceptable.
     valueConsumer.onFormValueChange(valueModel.formValue);
   }, []);
   return {

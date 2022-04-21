@@ -39,6 +39,7 @@ export function useKeyedItemComposition<T, P>(
   useSubscription(compositionModel.changes, onCompositionChange);
   // Also notify listeners of initial composition.
   React.useEffect(() => {
+    // This will fire twice if React "remounts"; that's acceptable.
     onCompositionChange({
       newComposition: compositionModel.composition,
       droppedKeys: [],

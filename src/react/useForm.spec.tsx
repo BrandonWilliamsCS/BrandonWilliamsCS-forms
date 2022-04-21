@@ -1,3 +1,4 @@
+import { initialStatus } from "@brandonwilliamscs/data-tools/promise";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { validityFor, validValidity } from "../value";
@@ -77,7 +78,7 @@ describe("useForm", () => {
     });
   });
   describe("submitStatus", () => {
-    it("is undefined before first submit", async () => {
+    it("is initial status before first submit", async () => {
       // Arrange
       const handleSubmit = jest.fn().mockReturnValue(new Promise(() => {}));
       // Act
@@ -86,7 +87,7 @@ describe("useForm", () => {
       );
       // Assert
       const { submitStatus } = result.current;
-      expect(submitStatus).toBeUndefined();
+      expect(submitStatus).toBe(initialStatus);
     });
     it("reports processing before submit completes", async () => {
       // Arrange
