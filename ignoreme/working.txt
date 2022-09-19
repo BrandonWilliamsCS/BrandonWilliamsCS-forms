@@ -1,0 +1,194 @@
+Major beefs:
+not satisfied with feel of array order tracking.
+-composition changes are never "confirmed" by view, but automatically cycle through.
+
+friction points:
+top-level must awkwardly combine types from lower level, or use DeepPartial
+-should be simple; just a validator given to the group model?
+No easy way to ensure composite value has all expected keys
+
+other ideas:
+group-level validation, or "revalidate" transformation
+-provide validator and "merge" of existing and new errors
+custom FV metadata type, which includes errors and anything else
+
+
+
+
+
+
+
+
+A complicating factor is that the model is strongly correlated with the view hierarchy. It's not necessarily coupled, but if you define it outside the view hierarchy you have to repeat it.
+
+tension between top-down view hierarchy (esp. render order) and bottom-up building of form models. It's not good to require the top-level model to render, but you do need SOME kind of model up top in order to properly render!
+
+
+
+step 1 is to remember that fields are just view stuff. They represent a current value and report user-facing changes. The rest of "form" stuff is its own piece that publishes values to and from that.
+Based on that, maybe it's not wise to make a FormControl version of everything. Maybe that job ought to be done by a more lightweight hook or even a pure function applied to a model.
+
+
+
+Big question: Why have a stateful "FormControlValue"? At one point it may have been good for middleware-type stuff. But especially with this split between writers and readers, it could just be the bight in the cord.
+The only apparent reason is to keep state up-to-date and initialize value.
+Notably, though, the outflow of FVs isn't an observable but just a callback! That suggests that something must subscribe in order to actually call that chain of change handlers. Probably don't need "model" for that. Just perform the logic directly in the observer function.
+Still, it argues for a FormControl component that is 1-1 with the field and connects those dots. For example: that subscription probably goes in a hook? But where is the hook called?
+
+
+
+*model is USUALLY tied to the equivalent view, but shouldn't always be that way! May be valuable to keep "full" model at a high level in some cases. Consider: virtualized lists, which will have models kept externally.
+Similarly could easily have high-level model that's not just a "pure" collective model.
+
+It feels wrong that you have to treat a form as such a first-class element. For example, the CP stuff has a specialized model with a form-shaped hole to better support that form stuff. Why? I think the motive is to have an unbroken chain where fields combine (and translate) to form. But that's really not necessary.
+So what is actually necessary (or at least good to enforce)?
+-DOM form behavior - accessibility, submit button/events
+--how does this interact with widget-heavy forms? Doesn't feel so much like a form.
+--If it's a bundle of related inputs/controls that are all "submitted" at once, it's a form.
+-field behavior - name, focus, autofill, and disable, plus interaction with dom submit
+-validation, and particularly when to show
+-unsaved changes? Seems like a high/app-level concept that has to be reflected at lower levels.
+-disabled behavior!
+
+It seems there needs to be a fairly standard "form" interface, and probably a "form control" paradigm that lets fields opt-in to form behaviors. But everything in between can be a black box! The group/collective stuff is convenience for standard cases. It's sensible that complicated screens have their own models.
+
+***HOPEFULLY this means that most of the form/control stuff can remain, and just stop using the transform stuff when it's not sufficient.
+
+
+# from Tracker
+
+forms!
+
+
+
+Common form pitfalls that I don't want to run into for the millionth time:
+-don't re-render the whole form when one field changes
+-separate UIfield state from actual form state, BUT ownership remains at base model
+-also mind the difference between value events and current value - "set to X" doesn't mean "value is now X"
+-validity is immediate, based on pre-defined rules and current state
+-react initial state/values
+--esp. in context of collectives and new items in those collections
+--models don't generally have/need initial values
+--probably just need to initialize in model projection hook
+-don't get too wrapped up in the DOM
+
+
+A complexity to be aware of is nesting combining, particularly in terms of WHERE models come from.
+-don't want god object at top level that must know about full child stuff - defeats the point
+-but if child model is created by component, not clear how it connects to parent
+
+
+
+
+
+
+
+
+
+generally a widget or field or other form ui unit will:
+-have a value
+-have a name and possibly id that affects all child names
+-display error state
+-obey disabled and readonly flags
+--even outside model-y stuff, readonly can be focused while disabled cannot
+-report non-value events like focus
+
+form control responsibilities
+-honestly, just combine the props and maybe some context.
+-take whatever models you need, project it to state+handlers, and pass everything along
+So what's in the model?
+-value (basically a CoreFormControlValue or possibly FormValueAdapter)
+--set value
+--broadcast form value changes
+--maintain current form value
+-confirmation events from outside
+-confirmed since last formvalue change
+-disabled behavior
+-contextual stuff like name/id prefix? may honestly be too UI-based.
+
+
+
+
+The idea of "mapping" form values implies that some the raw form fields may not match the actual form value
+Give up on the idea that the names and dom side actually matches up with the model. It's there for accessibility, diagnostics, etc. - the names are there for the UI surface, NOT the actual submit model.
+** dom forms group the UI associated with the submit action. it's about raw inputs, not actual "value".	
+So name doesn't have to fit model or even hierarchy, even though realistically it usually will
+no need to keep name stuff abstract:
+ baseName = givenName ?? baseId
+ fullName = nameContext ? nameContext.baseName : baseName
+nameContext can come from the model if desired
+ 
+
+two patterns to encapsulate:
+-generate model from contextual info and certain props
+-project model to
+
+
+
+
+
+
+
+???? could call it "FormEntity" or something. Yet another new word, but implies specific model behavior to differentiate
+
+
+
+
+
+## MODEL CRISIS!
+
+What's part of the "FormControlModel"?
+-value, obviously
+-NOT name, class, label, readonly, or most dom-centric props
+
+but what about interactions? specifically, confirmations?
+error state?
+
+
+Error state is in a weird place because, while it is specific to "the view", it is not specific to the DOM. It's about the presentation of the value but is universal behavior built around the value parts. You can talk about interactions and whether errors are "visible" without talking about how they're presented.
+It seems that AT LEAST confirmation fits - that's even further removed and doesn't care about presentation or accessibility, but works in the abstract. By extension, "this value has been confirmed".
+
+
+Ugh. The confirmation is of the UI and NOT the pure value. The validation error (which isn't part of the base validity) is what indicates whether `requiresConfirmation`. So the purest part of the model is truly just focused on FormValue. That is, the "headless" part of the model and the FormControlValue piece are one in the same.
+So the next layer out can have "presentation" logic like confirmations and error state. But where does this layer end? It probably shouldn't have dom stuff like name, className, id, etc.! I suppose the line is loosely based around the distinction between "there is an interactive element that represents this" and "it's a field/widget"?
+-confirmation + confirmed latest value
+-disabled value behavior (beyond just UI disables)
+Not sure this layer is actually useful, though. May just skip to the next layer up...
+At some point you add in everything else like name, id, readonly, interaction disables, actual error state, etc.
+
+
+So what's the point of all of it? How to justify bundling it all into one "model"?
+-a lot of it comes down to parentage. name/id prefixes, error state, inherited disable and so on
+-similar with transforms
+In particular, in most cases, we'll specify most values directly as props because each field is basically its own thing. Other props will just be simple computations based on a contextual/parent value. But for some cases, the value will come from somewhere else, like a higher-level piece.
+** maybe the key is that we need to accommodate "weird models" like a drag/drop mess. In cases like those, there are plenty of non-form concerns to figure out and that are tied in with the value — and sometimes with other form concerns like validation or submit status?
+
+
+
+
+
+
+
+
+
+
+
+
+
+## The role of the DOM
+
+One sticking point of the recent past is relationship with the DOM. At the most foundational, the DOM is just the leaf boundary of the react tree, where elements are reified and expose events. But in form stuff, there's the added complexity of the `form` tag and the `name` attribute on certain controls. 
+
+It's unrealistic to have modern SPA sites work without JS. That's a fundamental change to the way it all works. More pointedly, it's silly to try to make DOM form work perfectly without JS; there's just too much to gain by transforming the base field values into a final "form value", meaning there's too much of a cost to the expectation that they match.
+
+However, for accessibility and the like, it's still important that the DOM form concerns are all consistent and paint a clear picture of the state of the form (and particularly its value). UI elements that affect the value should be backed by a named `input` or other element that reports to the DOM form. It's there for accessibility, diagnostics, etc. — the names are there for the UI surface, NOT the actual submit model.
+
+As such, every valued form entity should have a name. Even components that delegate to other components should pass a name along to those components (possibly to be used as a prefix).
+
+## Initializing fields
+
+Plain fields/widgets NEED a value. There MUST be a value in state, even if that value is `undefined`. But, it must be the "real" value; can't just leave it blank, must explicitly set an acceptable value.
+
+The a form control model does not need a value. Whether disabled or for other reasons, there simply won't always be a value. This puts it at odds with field usage, which needs a value from it.
+
+There must be a bridge from the model side to the view side anyway, so have this bridge utilize a default value as needed. Initialize state to this default value if the model doesn't already have one and report that value as a change to the model via `useEffect`.

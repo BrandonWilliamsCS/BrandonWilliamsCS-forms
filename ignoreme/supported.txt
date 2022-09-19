@@ -1,0 +1,78 @@
+Supported Behaviors:
+
+Unsaved changes tracking
+
+Disable
+ field, group, entire form
+ replace value with undefined, but only when directly disabled
+ prevent edit whenever contextually disabled
+ alternate submit behavior
+
+Validation
+ value-based errors
+ control state errors
+ "async" errors
+ messages based on errors (internal and external)
+ conditional state display
+ merge internal/external
+  show-until-change (external, but still value-based)
+ group-level validation (with merging)
+
+Submit flow:
+(form business)
+ when disabled, quit early (and perform alternate behaviors)
+ record submit attempt
+ prevent inappropriate submits (mostly validation) and highlight issue/corrective steps
+(consumer business)
+ start processing indicator
+ make api call
+(mix - interpret specifics and apply to form)
+ display results, reset form, move to next steps, etc.
+ stop processing indicator, present results
+
+Reset
+ top level value set to undefined
+ clear submit/focus history
+ nuclear clear of entire state tree
+
+Form Control Context
+ name/prefix
+ validation message getter
+ contextual disable
+ contextual confirmation
+ interaction patterns, like submit/focus timestamps
+ misc data, esp. as transformed
+
+Standard UI and model patterns
+ buttons, incl. reset and multiple submit
+ submit status
+ validation and similar feedback
+ disabled behavior
+ requisites
+
+Tables
+ sortable rows
+ row built around parent record
+ row-level validation
+
+
+
+
+
+
+
+Estimate/contractual notes
+
+forms
+-build up around innermost generic structures
+-list UX requirements (e.g., when and where to show validation errors)
+-build better "library" structure
+
+standard inclusions
+-things we don't want to say every time
+-mitigate "obviously this means..."
+
+architecture
+-resign to using boilerplate/repetitive db entity / domain entity split (along with viewmodels, etc.)
+-CQRS without microservices
+-react resource chains
